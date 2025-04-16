@@ -7,11 +7,45 @@ class HealthKitManager: ObservableObject {
     
     // List of sample types you want to support
     let supportedTypes: [HKSampleType] = [
-        HKObjectType.quantityType(forIdentifier: .stepCount)!,
+        // Apple Watch Specific Data
         HKObjectType.quantityType(forIdentifier: .heartRate)!,
-        HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+        HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
+        HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
+        HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!,
+        HKObjectType.quantityType(forIdentifier: .vo2Max)!,
+        HKObjectType.quantityType(forIdentifier: .heartRateRecoveryOneMinute)!,
+        
+        // iPhone Specific Data
+        HKObjectType.quantityType(forIdentifier: .bodyMass)!,
+        HKObjectType.quantityType(forIdentifier: .bodyMassIndex)!,
+        HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!,
+        HKObjectType.quantityType(forIdentifier: .leanBodyMass)!,
+        HKObjectType.quantityType(forIdentifier: .height)!,
+        HKObjectType.quantityType(forIdentifier: .waistCircumference)!,
+        HKObjectType.quantityType(forIdentifier: .bloodPressureSystolic)!,
+        HKObjectType.quantityType(forIdentifier: .bloodPressureDiastolic)!,
+        HKObjectType.quantityType(forIdentifier: .bloodGlucose)!,
+        HKObjectType.quantityType(forIdentifier: .bodyTemperature)!,
+        HKObjectType.quantityType(forIdentifier: .respiratoryRate)!,
+        
+        // Both Apple Watch and iPhone Data
+        HKObjectType.quantityType(forIdentifier: .stepCount)!,
         HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
-        // Add more as needed
+        HKObjectType.quantityType(forIdentifier: .distanceCycling)!,
+        HKObjectType.quantityType(forIdentifier: .distanceSwimming)!,
+        HKObjectType.quantityType(forIdentifier: .distanceWheelchair)!,
+        HKObjectType.quantityType(forIdentifier: .flightsClimbed)!,
+        HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+        HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!,
+        
+        // Manual Entry Data (typically entered via iPhone)
+        HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed)!,
+        HKObjectType.quantityType(forIdentifier: .dietaryCarbohydrates)!,
+        HKObjectType.quantityType(forIdentifier: .dietaryProtein)!,
+        HKObjectType.quantityType(forIdentifier: .dietaryFatTotal)!,
+        HKObjectType.quantityType(forIdentifier: .dietarySugar)!,
+        HKObjectType.quantityType(forIdentifier: .dietaryFiber)!,
+        HKObjectType.quantityType(forIdentifier: .dietarySodium)!
     ]
     
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
