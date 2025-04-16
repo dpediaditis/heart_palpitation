@@ -526,11 +526,13 @@ struct DataTypeSelectionView: View {
 }
 
 struct ConditionServicesView: View {
+    @State private var showFibriCheckAlert = false
+    
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("Available Services")) {
-                    Button(action: openFibriCheck) {
+                    Button(action: { showFibriCheckAlert = true }) {
                         HStack {
                             Image(systemName: "heart.fill")
                                 .foregroundColor(.red)
@@ -543,6 +545,14 @@ struct ConditionServicesView: View {
                 }
             }
             .navigationTitle("Condition Services")
+            .alert("Open FibriCheck", isPresented: $showFibriCheckAlert) {
+                Button("Open", role: .none) {
+                    openFibriCheck()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will open the FibriCheck app to help you monitor your heart palpitations. Would you like to proceed?")
+            }
         }
     }
     
