@@ -19,16 +19,17 @@ struct ContentView: View {
     @State private var errorMessage: String?
     @State private var showTypeSelection = false
     @State private var isAuthenticated = false
+    @StateObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         if isAuthenticated {
             TabView {
                 NavigationView {
                     Form {
-                        Section(header: Text("Data Types to Share")) {
+                        Section(header: Text(languageManager.localizedString("data_types_to_share"))) {
                             Button(action: { showTypeSelection = true }) {
                                 HStack {
-                                    Text(selectedTypes.isEmpty ? "Select Data Types" : selectedTypes.map { $0.localizedName }.joined(separator: ", "))
+                                    Text(selectedTypes.isEmpty ? languageManager.localizedString("select_data_types") : selectedTypes.map { $0.localizedName }.joined(separator: ", "))
                                         .foregroundColor(selectedTypes.isEmpty ? .gray : .primary)
                                     Spacer()
                                     Image(systemName: "chevron.right")
@@ -43,16 +44,16 @@ struct ContentView: View {
                                 )
                             }
                         }
-                        Section(header: Text("Select Time Window")) {
-                            DatePicker("Start Date", selection: $startDate, displayedComponents: [.date, .hourAndMinute])
-                            DatePicker("End Date", selection: $endDate, displayedComponents: [.date, .hourAndMinute])
+                        Section(header: Text(languageManager.localizedString("select_time_window"))) {
+                            DatePicker(languageManager.localizedString("start_date"), selection: $startDate, displayedComponents: [.date, .hourAndMinute])
+                            DatePicker(languageManager.localizedString("end_date"), selection: $endDate, displayedComponents: [.date, .hourAndMinute])
                         }
                         Section {
                             Button(action: requestConsent) {
                                 if isAuthorizing {
                                     ProgressView()
                                 } else {
-                                    Text("Share with BankID Consent")
+                                    Text(languageManager.localizedString("share_with_bankid"))
                                 }
                             }
                             .disabled(selectedTypes.isEmpty || isAuthorizing)
@@ -63,26 +64,28 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .navigationTitle("Share Health Data")
-                    .alert(isPresented: $showSuccess) {
-                        Alert(title: Text("Consent Authorized"), message: Text("Your consent has been saved."), dismissButton: .default(Text("OK")))
+                    .navigationTitle(languageManager.localizedString("share_health_data"))
+                    .alert(languageManager.localizedString("consent_authorized"), isPresented: $showSuccess) {
+                        Button(languageManager.localizedString("ok"), role: .cancel) {}
+                    } message: {
+                        Text(languageManager.localizedString("consent_saved"))
                     }
                     .onAppear {
                         healthKitManager.requestAuthorization { _ in }
                     }
                 }
                 .tabItem {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    Label(languageManager.localizedString("share"), systemImage: "square.and.arrow.up")
                 }
                 
                 ConsentLogView(consentStore: consentStore)
                     .tabItem {
-                        Label("Consent Log", systemImage: "clock")
+                        Label(languageManager.localizedString("consent_log"), systemImage: "clock")
                     }
                 
                 ConditionServicesView()
                     .tabItem {
-                        Label("Services", systemImage: "heart.text.square")
+                        Label(languageManager.localizedString("services"), systemImage: "heart.text.square")
                     }
             }
         } else {
@@ -114,6 +117,7 @@ struct LoginView: View {
     @Binding var isAuthenticated: Bool
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
+    @StateObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         VStack(spacing: 20) {
@@ -121,23 +125,45 @@ struct LoginView: View {
                 .font(.system(size: 60))
                 .foregroundColor(.red)
             
-            Text("PatApp Playground")
+            Text(languageManager.localizedString("app_name"))
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            Text("Secure Health Data Sharing")
+            Text(languageManager.localizedString("secure_health_data"))
                 .font(.subheadline)
                 .foregroundColor(.gray)
             
             Spacer()
-                .frame(height: 40)
+                .frame(height: 20)
+            
+            // Language Selection Buttons
+            HStack(spacing: 20) {
+                Button(action: { languageManager.setLanguage(.english) }) {
+                    Text(languageManager.localizedString("english"))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(languageManager.currentLanguage == .english ? Color.blue : Color.gray.opacity(0.2))
+                        .foregroundColor(languageManager.currentLanguage == .english ? .white : .primary)
+                        .cornerRadius(8)
+                }
+                
+                Button(action: { languageManager.setLanguage(.swedish) }) {
+                    Text(languageManager.localizedString("swedish"))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(languageManager.currentLanguage == .swedish ? Color.blue : Color.gray.opacity(0.2))
+                        .foregroundColor(languageManager.currentLanguage == .swedish ? .white : .primary)
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.bottom, 20)
             
             Button(action: authenticate) {
                 if isAuthenticating {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
-                    Text("Login with BankID")
+                    Text(languageManager.localizedString("login_with_bankid"))
                         .fontWeight(.semibold)
                 }
             }
@@ -166,7 +192,7 @@ struct LoginView: View {
             if success {
                 isAuthenticated = true
             } else {
-                errorMessage = "BankID authentication failed. Please try again."
+                errorMessage = languageManager.localizedString("authentication_failed")
             }
         }
     }
@@ -178,6 +204,7 @@ struct ConsentLogView: View {
     @State private var showWithdrawAlert = false
     @State private var showExportAlert = false
     @State private var exportError: String?
+    @StateObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         NavigationView {
@@ -190,44 +217,39 @@ struct ConsentLogView: View {
                         }
                     }) {
                         VStack(alignment: .leading) {
-                            Text("Shared Data:")
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                            
-                            ForEach(consent.dataTypes, id: \.self) { dataType in
-                                HStack {
-                                    Image(systemName: getIcon(for: dataType))
-                                        .foregroundColor(.blue)
-                                    Text(getDescription(for: dataType))
-                                        .font(.subheadline)
+                            Section(header: Text(languageManager.localizedString("shared_data"))) {
+                                ForEach(consent.dataTypes, id: \.self) { dataType in
+                                    HStack {
+                                        Image(systemName: getIcon(for: dataType))
+                                            .foregroundColor(.blue)
+                                        Text(getDescription(for: dataType))
+                                            .font(.subheadline)
+                                    }
+                                    .padding(.leading)
                                 }
-                                .padding(.leading)
                             }
                             
-                            Text("Time Period:")
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                                .padding(.top, 4)
-                            
-                            Text("From: \(consent.startDate.formatted(date: .abbreviated, time: .shortened))")
-                                .font(.subheadline)
-                                .padding(.leading)
-                            
-                            Text("To: \(consent.endDate.formatted(date: .abbreviated, time: .shortened))")
-                                .font(.subheadline)
-                                .padding(.leading)
+                            Section(header: Text(languageManager.localizedString("time_period"))) {
+                                Text("\(languageManager.localizedString("from")): \(consent.startDate.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.subheadline)
+                                    .padding(.leading)
+                                
+                                Text("\(languageManager.localizedString("to")): \(consent.endDate.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.subheadline)
+                                    .padding(.leading)
+                            }
                             
                             HStack {
-                                Text("Status: \(consent.status.rawValue.capitalized)")
+                                Text("\(languageManager.localizedString("status")): \(consent.status.rawValue.capitalized)")
                                     .font(.footnote)
                                     .foregroundColor(consent.status == .authorized ? .green : .red)
                                 Spacer()
                                 if consent.isActive {
-                                    Text("Active")
+                                    Text(languageManager.localizedString("active"))
                                         .font(.caption)
                                         .foregroundColor(.green)
                                 } else {
-                                    Text("Expired")
+                                    Text(languageManager.localizedString("expired"))
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -235,7 +257,7 @@ struct ConsentLogView: View {
                             .padding(.top, 4)
                             
                             if let tx = consent.bankIDTransactionID {
-                                Text("BankID TX: \(tx)")
+                                Text("\(languageManager.localizedString("bankid_tx")): \(tx)")
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                             }
@@ -251,7 +273,7 @@ struct ConsentLogView: View {
                         }) {
                             HStack {
                                 Image(systemName: "square.and.arrow.up")
-                                Text("Export Data")
+                                Text(languageManager.localizedString("export_data"))
                             }
                             .font(.caption)
                             .foregroundColor(.blue)
@@ -261,16 +283,16 @@ struct ConsentLogView: View {
                 }
             }
             .navigationTitle("Consent Log")
-            .alert("Withdraw Consent?", isPresented: $showWithdrawAlert, presenting: selectedConsent) { consent in
-                Button("Withdraw", role: .destructive) {
+            .alert(languageManager.localizedString("withdraw_consent"), isPresented: $showWithdrawAlert, presenting: selectedConsent) { consent in
+                Button(languageManager.localizedString("withdraw"), role: .destructive) {
                     withdrawConsent(consent)
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(languageManager.localizedString("cancel"), role: .cancel) {}
             } message: { _ in
-                Text("Are you sure you want to withdraw this active consent? This action cannot be undone.")
+                Text(languageManager.localizedString("withdraw_confirm"))
             }
-            .alert("Export Error", isPresented: .constant(exportError != nil)) {
-                Button("OK", role: .cancel) {
+            .alert(languageManager.localizedString("export_error"), isPresented: .constant(exportError != nil)) {
+                Button(languageManager.localizedString("ok"), role: .cancel) {
                     exportError = nil
                 }
             } message: {
@@ -527,16 +549,17 @@ struct DataTypeSelectionView: View {
 
 struct ConditionServicesView: View {
     @State private var showFibriCheckAlert = false
+    @StateObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         NavigationView {
             List {
-                Section(header: Text("Available Services")) {
+                Section(header: Text(languageManager.localizedString("available_services"))) {
                     Button(action: { showFibriCheckAlert = true }) {
                         HStack {
                             Image(systemName: "heart.fill")
                                 .foregroundColor(.red)
-                            Text("Heart Palpitation")
+                            Text(languageManager.localizedString("heart_palpitation"))
                             Spacer()
                             Image(systemName: "arrow.up.right.square")
                                 .foregroundColor(.blue)
@@ -544,14 +567,14 @@ struct ConditionServicesView: View {
                     }
                 }
             }
-            .navigationTitle("Condition Services")
-            .alert("Open FibriCheck", isPresented: $showFibriCheckAlert) {
-                Button("Open", role: .none) {
+            .navigationTitle(languageManager.localizedString("services"))
+            .alert(languageManager.localizedString("open_fibricheck"), isPresented: $showFibriCheckAlert) {
+                Button(languageManager.localizedString("open"), role: .none) {
                     openFibriCheck()
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(languageManager.localizedString("cancel"), role: .cancel) {}
             } message: {
-                Text("This will open the FibriCheck app to help you monitor your heart palpitations. Would you like to proceed?")
+                Text(languageManager.localizedString("fibricheck_confirm"))
             }
         }
     }
