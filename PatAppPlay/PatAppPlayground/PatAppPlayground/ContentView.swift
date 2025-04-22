@@ -9,8 +9,8 @@ import SwiftUI
 import HealthKit
 
 struct ContentView: View {
-    @StateObject private var consentStore = ConsentStore()
     @StateObject private var healthKitManager = HealthKitManager.shared
+    @StateObject private var consentStore = ConsentStore.shared
     @State private var selectedTypes: Set<HKSampleType> = []
     @State private var startDate = Date()
     @State private var endDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
@@ -104,7 +104,7 @@ struct ContentView: View {
                 var authorizedConsent = consent
                 authorizedConsent.status = .authorized
                 authorizedConsent.bankIDTransactionID = transactionID
-                consentStore.addConsent(authorizedConsent)
+                consentStore.saveConsent(authorizedConsent)
                 showSuccess = true
             } else {
                 errorMessage = "BankID authorization failed."
@@ -200,7 +200,6 @@ struct LoginView: View {
 
 struct ConsentLogView: View {
     @ObservedObject var consentStore: ConsentStore
-    @State private var selectedConsent: Consent?
     @State private var showWithdrawAlert = false
     @State private var showExportAlert = false
     @State private var exportError: String?
@@ -208,97 +207,111 @@ struct ConsentLogView: View {
     
     var body: some View {
         NavigationView {
-            List(consentStore.consents.sorted { $0.dateGiven > $1.dateGiven }) { consent in
-                VStack(alignment: .leading) {
-                    Button(action: {
-                        if consent.isActive {
-                            selectedConsent = consent
-                            showWithdrawAlert = true
+            if let consent = consentStore.currentConsent {
+                List {
+                    VStack(alignment: .leading) {
+                        Section(header: Text(languageManager.localizedString("shared_data"))) {
+                            ForEach(consent.dataTypes, id: \.self) { dataType in
+                                HStack {
+                                    Image(systemName: getIcon(for: dataType))
+                                        .foregroundColor(.blue)
+                                    Text(getDescription(for: dataType))
+                                        .font(.subheadline)
+                                }
+                                .padding(.leading)
+                            }
                         }
-                    }) {
-                        VStack(alignment: .leading) {
-                            Section(header: Text(languageManager.localizedString("shared_data"))) {
-                                ForEach(consent.dataTypes, id: \.self) { dataType in
-                                    HStack {
-                                        Image(systemName: getIcon(for: dataType))
-                                            .foregroundColor(.blue)
-                                        Text(getDescription(for: dataType))
-                                            .font(.subheadline)
-                                    }
-                                    .padding(.leading)
-                                }
-                            }
+                        
+                        Section(header: Text(languageManager.localizedString("time_period"))) {
+                            Text("\(languageManager.localizedString("from")): \(consent.startDate.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.subheadline)
+                                .padding(.leading)
                             
-                            Section(header: Text(languageManager.localizedString("time_period"))) {
-                                Text("\(languageManager.localizedString("from")): \(consent.startDate.formatted(date: .abbreviated, time: .shortened))")
-                                    .font(.subheadline)
-                                    .padding(.leading)
-                                
-                                Text("\(languageManager.localizedString("to")): \(consent.endDate.formatted(date: .abbreviated, time: .shortened))")
-                                    .font(.subheadline)
-                                    .padding(.leading)
-                            }
-                            
-                            HStack {
-                                Text("\(languageManager.localizedString("status")): \(consent.status.rawValue.capitalized)")
-                                    .font(.footnote)
-                                    .foregroundColor(consent.status == .authorized ? .green : .red)
-                                Spacer()
-                                if consent.isActive {
-                                    Text(languageManager.localizedString("active"))
-                                        .font(.caption)
-                                        .foregroundColor(.green)
-                                } else {
-                                    Text(languageManager.localizedString("expired"))
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .padding(.top, 4)
-                            
-                            if let tx = consent.bankIDTransactionID {
-                                Text("\(languageManager.localizedString("bankid_tx")): \(tx)")
-                                    .font(.caption2)
+                            Text("\(languageManager.localizedString("to")): \(consent.endDate.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.subheadline)
+                                .padding(.leading)
+                        }
+                        
+                        HStack {
+                            Text("\(languageManager.localizedString("status")): \(consent.status.rawValue.capitalized)")
+                                .font(.footnote)
+                                .foregroundColor(consent.status == .authorized ? .green : .red)
+                            Spacer()
+                            if consent.isActive {
+                                Text(languageManager.localizedString("active"))
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            } else {
+                                Text(languageManager.localizedString("expired"))
+                                    .font(.caption)
                                     .foregroundColor(.gray)
                             }
                         }
-                        .padding(.vertical, 4)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(!consent.isActive)
-                    
-                    if consent.isActive {
-                        Button(action: {
-                            exportConsentData(consent)
-                        }) {
-                            HStack {
-                                Image(systemName: "square.and.arrow.up")
-                                Text(languageManager.localizedString("export_data"))
+                        .padding(.top, 4)
+                        
+                        if let tx = consent.bankIDTransactionID {
+                            Text("\(languageManager.localizedString("bankid_tx")): \(tx)")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        HStack {
+                            if consent.isActive {
+                                Button(action: {
+                                    showWithdrawAlert = true
+                                }) {
+                                    HStack {
+                                        Image(systemName: "xmark.circle")
+                                        Text(languageManager.localizedString("withdraw_consent"))
+                                    }
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                Spacer()
                             }
-                            .font(.caption)
-                            .foregroundColor(.blue)
+                            
+                            Button(action: {
+                                exportConsentData(consent)
+                            }) {
+                                HStack {
+                                    Image(systemName: "square.and.arrow.up")
+                                    Text(languageManager.localizedString("export_data"))
+                                }
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         .padding(.top, 4)
                     }
                 }
-            }
-            .navigationTitle("Consent Log")
-            .alert(languageManager.localizedString("withdraw_consent"), isPresented: $showWithdrawAlert, presenting: selectedConsent) { consent in
-                Button(languageManager.localizedString("withdraw"), role: .destructive) {
-                    withdrawConsent(consent)
+                .navigationTitle(languageManager.localizedString("consent_log"))
+                .alert(languageManager.localizedString("withdraw_consent"), isPresented: $showWithdrawAlert) {
+                    Button(languageManager.localizedString("withdraw"), role: .destructive) {
+                        consentStore.withdrawConsent()
+                    }
+                    Button(languageManager.localizedString("cancel"), role: .cancel) {}
+                } message: {
+                    Text(languageManager.localizedString("withdraw_confirm"))
                 }
-                Button(languageManager.localizedString("cancel"), role: .cancel) {}
-            } message: { _ in
-                Text(languageManager.localizedString("withdraw_confirm"))
-            }
-            .alert(languageManager.localizedString("export_error"), isPresented: .constant(exportError != nil)) {
-                Button(languageManager.localizedString("ok"), role: .cancel) {
-                    exportError = nil
+                .alert(languageManager.localizedString("export_error"), isPresented: Binding(
+                    get: { exportError != nil },
+                    set: { if !$0 { exportError = nil } }
+                )) {
+                    Button(languageManager.localizedString("ok"), role: .cancel) {
+                        exportError = nil
+                    }
+                } message: {
+                    if let error = exportError {
+                        Text(error)
+                    }
                 }
-            } message: {
-                if let error = exportError {
-                    Text(error)
-                }
+            } else {
+                Text(languageManager.localizedString("no_active_consent"))
+                    .foregroundColor(.gray)
+                    .navigationTitle(languageManager.localizedString("consent_log"))
             }
         }
     }
@@ -331,12 +344,6 @@ struct ConsentLogView: View {
         default:
             return "\(dataType.rawValue) (from Health app)"
         }
-    }
-    
-    private func withdrawConsent(_ consent: Consent) {
-        var revoked = consent
-        revoked.status = .revoked
-        consentStore.updateConsent(revoked)
     }
     
     private func exportConsentData(_ consent: Consent) {
@@ -408,8 +415,15 @@ struct ConsentLogView: View {
                 }
             }
             
-            healthKitManager.requestAuthorization { _ in
-                HKHealthStore().execute(query)
+            // Request authorization and execute query
+            healthKitManager.requestAuthorization { success in
+                if success {
+                    HKHealthStore().execute(query)
+                } else {
+                    DispatchQueue.main.async {
+                        exportError = "Failed to authorize HealthKit access"
+                    }
+                }
             }
         }
     }

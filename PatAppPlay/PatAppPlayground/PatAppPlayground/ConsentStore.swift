@@ -1,35 +1,38 @@
 import Foundation
+import HealthKit
+
+extension Notification.Name {
+    static let consentChanged = Notification.Name("consentChanged")
+}
 
 class ConsentStore: ObservableObject {
-    @Published private(set) var consents: [Consent] = []
-    private let storageKey = "consents"
+    static let shared = ConsentStore()
+    private let dataSyncService = DataSyncService.shared
     
-    init() {
-        load()
+    @Published private(set) var currentConsent: Consent?
+    
+    private init() {
+        loadConsent()
     }
     
-    func addConsent(_ consent: Consent) {
-        consents.append(consent)
-        save()
+    func saveConsent(_ consent: Consent) {
+        currentConsent = consent
+        UserDefaults.standard.set(try? JSONEncoder().encode(consent), forKey: "currentConsent")
+        NotificationCenter.default.post(name: .consentChanged, object: nil)
+        
+        // Start data synchronization
+        DataSyncService.shared.startSync(for: consent)
     }
     
-    func updateConsent(_ consent: Consent) {
-        if let idx = consents.firstIndex(where: { $0.id == consent.id }) {
-            consents[idx] = consent
-            save()
-        }
+    func withdrawConsent() {
+        currentConsent = nil
+        UserDefaults.standard.removeObject(forKey: "currentConsent")
     }
     
-    private func save() {
-        if let data = try? JSONEncoder().encode(consents) {
-            UserDefaults.standard.set(data, forKey: storageKey)
-        }
-    }
-    
-    private func load() {
-        if let data = UserDefaults.standard.data(forKey: storageKey),
-           let decoded = try? JSONDecoder().decode([Consent].self, from: data) {
-            consents = decoded
+    private func loadConsent() {
+        if let data = UserDefaults.standard.data(forKey: "currentConsent"),
+           let consent = try? JSONDecoder().decode(Consent.self, from: data) {
+            currentConsent = consent
         }
     }
 } 

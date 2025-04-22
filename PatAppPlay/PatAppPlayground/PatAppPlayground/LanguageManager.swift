@@ -84,7 +84,11 @@ class LanguageManager: ObservableObject {
         "heart_palpitation": "Heart Palpitation",
         "open_fibricheck": "Open FibriCheck",
         "fibricheck_confirm": "This will open the FibriCheck app to help you monitor your heart palpitations. Would you like to proceed?",
-        "open": "Open"
+        "open": "Open",
+        "sharedDataTitle": "Shared Health Data",
+        "noActiveConsent": "No active consent found. Please give consent to view shared data.",
+        "samples": "samples",
+        "lastUpdated": "Last updated"
     ]
     
     private let swedishStrings: [String: String] = [
@@ -147,6 +151,10 @@ class LanguageManager: ObservableObject {
         "heart_palpitation": "Hjärtklappning",
         "open_fibricheck": "Öppna FibriCheck",
         "fibricheck_confirm": "Detta kommer att öppna FibriCheck-appen för att hjälpa dig att övervaka din hjärtklappning. Vill du fortsätta?",
-        "open": "Öppna"
+        "open": "Öppna",
+        "sharedDataTitle": "Delade Hälsodata",
+        "noActiveConsent": "Inget aktivt samtycke hittades. Vänligen ge samtycke för att visa delade data.",
+        "samples": "prover",
+        "lastUpdated": "Senast uppdaterad"
     ]
 } 
