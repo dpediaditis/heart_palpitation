@@ -6,6 +6,7 @@ import HealthKit
 @main
 struct HeartPalpApp: App {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {

@@ -20,6 +20,12 @@ struct OnboardingFlow: View {
                     HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
                     HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!,
                     HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+                    HKObjectType.quantityType(forIdentifier: .stepCount)!,
+                    HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                    HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                    HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
+                    HKObjectType.quantityType(forIdentifier: .appleStandTime)!,
                     HKObjectType.electrocardiogramType()
                 ]
 

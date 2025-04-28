@@ -16,7 +16,11 @@ struct CalendarLogView: View {
     @HealthKitQuery(.restingHeartRate, timeRange: .currentYear) private var restingAll
     @HealthKitQuery(.bloodOxygen, timeRange: .currentYear) private var oxyAll
     @HealthKitQuery(.electrocardiogram,timeRange: .currentYear) private var ecgAll
-
+    @HealthKitQuery(.stepCount, timeRange: .currentYear) private var stepsAll
+     @HealthKitQuery(.activeEnergyBurned, timeRange: .currentYear) private var energyAll
+     @HealthKitQuery(.appleExerciseTime, timeRange: .currentYear) private var exerciseAll
+     @HealthKitQuery(.appleStandTime, timeRange: .currentYear) private var standAll
+     @HealthKitQuery(.bloodGlucose, timeRange: .currentYear) private var glucoseAll
     var body: some View {
             NavigationView {
                 ScrollView {
@@ -34,7 +38,12 @@ struct CalendarLogView: View {
                             hrSamples: Array(hrAll),
                             restingSamples: Array(restingAll),
                             oxygenSamples: Array(oxyAll),
-                            ecgSamples: Array(ecgAll)
+                            ecgSamples: Array(ecgAll),
+                            stepSamples:     Array(stepsAll),
+                            energySamples:   Array(energyAll),
+                            exerciseSamples: Array(exerciseAll),
+                            standSamples:    Array(standAll),
+                            glucoseSamples:  Array(glucoseAll)
                         )
                     }
                     .padding(.vertical)
