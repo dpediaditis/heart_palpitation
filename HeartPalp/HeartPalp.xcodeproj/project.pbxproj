@@ -387,7 +387,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -445,7 +445,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -468,7 +468,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HeartPalp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "We use health records to visualize the vitals";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\n";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We need to write your workout data to HealthKit";
@@ -503,7 +502,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HeartPalp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "We use health records to visualize the vitals";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\n";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We need to write your workout data to HealthKit";
