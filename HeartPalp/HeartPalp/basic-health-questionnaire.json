@@ -1,0 +1,70 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "basic-health-questionnaire",
+  "status": "active",
+  "title": "Basic Health Questionnaire",
+  "item": [
+    {
+      "linkId": "age",
+      "text": "What is your age?",
+      "type": "integer",
+      "required": true
+    },
+    {
+      "linkId": "gender",
+      "text": "What is your gender?",
+      "type": "choice",
+      "answerOption": [
+        { "valueCoding": { "system": "http://hl7.org/fhir/administrative-gender", "code": "male", "display": "Male" } },
+        { "valueCoding": { "system": "http://hl7.org/fhir/administrative-gender", "code": "female", "display": "Female" } },
+        { "valueCoding": { "system": "http://hl7.org/fhir/administrative-gender", "code": "other", "display": "Other" } },
+        { "valueCoding": { "system": "http://hl7.org/fhir/administrative-gender", "code": "unspecified", "display": "Prefer not to say" } }
+      ]
+    },
+    {
+      "linkId": "height",
+      "text": "What is your height (cm)?",
+      "type": "decimal"
+    },
+    {
+      "linkId": "weight",
+      "text": "What is your weight (kg)?",
+      "type": "decimal"
+    },
+    {
+      "linkId": "smoking",
+      "text": "Do you currently smoke?",
+      "type": "boolean"
+    },
+    {
+      "linkId": "alcohol",
+      "text": "How often do you consume alcohol?",
+      "type": "choice",
+      "answerOption": [
+        { "valueCoding": { "code": "never", "display": "Never" } },
+        { "valueCoding": { "code": "monthly", "display": "Monthly or less" } },
+        { "valueCoding": { "code": "weekly", "display": "Weekly" } },
+        { "valueCoding": { "code": "daily", "display": "Daily or almost daily" } }
+      ]
+    },
+    {
+      "linkId": "exercise",
+      "text": "How many days per week do you do ≥30 min of exercise?",
+      "type": "integer"
+    },
+    {
+      "linkId": "sleep",
+      "text": "On average, how many hours of sleep do you get per night?",
+      "type": "decimal"
+    },
+    {
+      "linkId": "stress",
+      "text": "On a scale of 0–10, how would you rate your current stress level?",
+      "type": "integer",
+      "extension": [
+        { "url": "http://hl7.org/fhir/StructureDefinition/minValue", "valueInteger": 0 },
+        { "url": "http://hl7.org/fhir/StructureDefinition/maxValue", "valueInteger": 10 }
+      ]
+    }
+  ]
+}

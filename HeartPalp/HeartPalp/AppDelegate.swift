@@ -7,6 +7,8 @@ import SpeziQuestionnaire
 class AppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
         Configuration(standard: HealthDataStandard()) {
+            
+            // MARK: – HealthKit
             HealthKit {
                 CollectSample(.heartRate)
                 CollectSample(.restingHeartRate)
@@ -34,6 +36,7 @@ class AppDelegate: SpeziAppDelegate {
                     HKObjectType.quantityType(forIdentifier: .appleStandTime)!
                 ])
             }
+
         }
     }
 }

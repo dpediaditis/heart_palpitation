@@ -31,9 +31,38 @@ class FHIRDataService: ObservableObject {
             print("👤 Patient Status: \(httpResponse.statusCode)")
         }
     }
+    
+    /// Posts a completed QuestionnaireResponse payload to the FHIR server
+    func uploadQuestionnaireResponse(_ jsonData: Data) async throws {
+        let url = URL(string: "\(serverURL)/QuestionnaireResponse")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Not an HTTP response")
+            throw FHIRError.uploadFailed
+        }
+
+        if !(200...299).contains(httpResponse.statusCode) {
+            let body = String(data: data, encoding: .utf8) ?? "<no body>"
+            print("""
+            ❌ QuestionnaireResponse upload failed
+              Status: \(httpResponse.statusCode)
+              Body:
+            \(body)
+            """)
+            throw FHIRError.uploadFailed
+        }
+
+        print("✅ QuestionnaireResponse posted: \(httpResponse.statusCode)")
+    }
+
 
     /// Upload all health data in a single FHIR transaction Bundle,
-    /// with ECG waveform batched into a single Binary NDJSON blob
+    /// with ECG waveform encoded as SampledData
     func uploadAllHealthData(
         hrSamples: [HKQuantitySample],
         restingSamples: [HKQuantitySample],
@@ -123,52 +152,18 @@ class FHIRDataService: ObservableObject {
                                transform: { $0 * 18.0 })
         }
 
-        // ECG classification & build NDJSON blob of waveform Observations
-        // 1️⃣ Classification Observation
-        ecgSamples.forEach { ecg in
-            let classObs = FHIRObservation(
-                status: "final",
-                code: FHIRCodeableConcept(coding: [
-                    FHIRCoding(system: "http://loinc.org", code: "131328", display: "ECG classification")
-                ]),
-                subject: patientRef,
-                effectiveDateTime: ecg.startDate.iso8601String(),
-                valueString: String(ecg.classification.rawValue)
-            )
-            entries.append(
-                FHIRBundleEntry(request: FHIRBundleRequest(method: "POST", url: "Observation"), resource: classObs)
-            )
-        }
-
-        // 2️⃣ Build newline-delimited JSON of every waveform point
-        var ndjson = ""
+        // ECG waveform as SampledData
         for ecg in ecgSamples {
+            var volts = [Double]()
+            var times = [TimeInterval]()
+            let startDate = ecg.startDate
             let sem = DispatchSemaphore(value: 0)
             let query = HKElectrocardiogramQuery(ecg) { _, result in
                 switch result {
                 case .measurement(let m):
                     if let q = m.quantity(for: .appleWatchSimilarToLeadI) {
-                        let mv = q.doubleValue(for: .volt()) * 1000
-                        let timestamp = ecg.startDate.addingTimeInterval(m.timeSinceSampleStart)
-                        let obsJson: [String: Any] = [
-                            "resourceType":"Observation",
-                            "status":"final",
-                            "code":["coding":[[
-                                "system":"http://loinc.org",
-                                "code":"51985-6",
-                                "display":"ECG lead I voltage"
-                            ]]],
-                            "subject":["reference":"Patient/example-patient-id"],
-                            "effectiveDateTime":timestamp.iso8601String(),
-                            "valueQuantity":[
-                                "value": mv,
-                                "unit":  "mV",
-                                "system":"http://unitsofmeasure.org",
-                                "code":  "mV"
-                            ]
-                        ]
-                        let data = try! JSONSerialization.data(withJSONObject: obsJson)
-                        ndjson += String(data: data, encoding: .utf8)! + "\n"
+                        volts.append(q.doubleValue(for: .volt()) * 1000)
+                        times.append(m.timeSinceSampleStart)
                     }
                 case .done, .error:
                     sem.signal()
@@ -176,19 +171,46 @@ class FHIRDataService: ObservableObject {
             }
             healthStore.execute(query)
             sem.wait()
-        }
 
-        // 3️⃣ Wrap NDJSON blob in a Binary
-        let blobData = Data(ndjson.utf8)
-        let blobB64  = blobData.base64EncodedString()
-        let binary = FHIRBinary(
-            contentType: "application/fhir+ndjson",
-            data:        blobB64
-        )
-        entries.insert(
-            FHIRBundleEntry(request: FHIRBundleRequest(method: "POST", url: "Binary"), resource: binary),
-            at: 0
-        )
+            guard volts.count > 1 else { continue }
+            // compute mean period (in ms)
+            let intervals = zip(times.dropFirst(), times).map(-)
+            let meanSeconds = intervals.reduce(0, +) / Double(intervals.count)
+            let periodMs = meanSeconds * 1000.0
+
+            // build whitespace-separated data string
+            let dataString = volts.map { String(format: "%.3f", $0) }.joined(separator: " ")
+
+            let sampled = FHIRSampledData(
+                origin: FHIRQuantity(value: volts.first!, unit: "mV", system: "http://unitsofmeasure.org", code: "mV"),
+                period: periodMs,
+                periodUnit: "ms",
+                factor: nil,
+                lowerLimit: volts.min(),
+                upperLimit: volts.max(),
+                dimensions: 1,
+                data: dataString
+            )
+
+            var ecgObs = FHIRObservation(
+                status: "final",
+                code: FHIRCodeableConcept(coding: [
+                    FHIRCoding(system: "http://loinc.org", code: "131328-4", display: "ECG rhythm strip")
+                ]),
+                subject: patientRef,
+                effectiveDateTime: startDate.iso8601String()
+            )
+            ecgObs.component = [FHIRObservationComponent(
+                code: FHIRCodeableConcept(coding: [
+                    FHIRCoding(system: "http://loinc.org", code: "51985-6", display: "ECG lead I voltage")
+                ]),
+                valueSampledData: sampled
+            )]
+
+            entries.append(
+                FHIRBundleEntry(request: FHIRBundleRequest(method: "POST", url: "Observation"), resource: ecgObs)
+            )
+        }
 
         // Build and POST transaction Bundle
         let bundle = FHIRBundle(type: "transaction", entry: entries)
@@ -229,6 +251,18 @@ struct FHIRObservationComponent: Codable {
     let code: FHIRCodeableConcept
     var valueQuantity: FHIRQuantity?
     var valueString: String?
+    var valueSampledData: FHIRSampledData?
+}
+
+struct FHIRSampledData: Codable {
+    let origin: FHIRQuantity
+    let period: Double
+    let periodUnit: String    // added unit for period
+    let factor: Double?
+    let lowerLimit: Double?
+    let upperLimit: Double?
+    let dimensions: Int
+    let data: String
 }
 
 struct FHIRCodeableConcept: Codable { let coding: [FHIRCoding] }
@@ -236,14 +270,6 @@ struct FHIRCoding: Codable { let system: String; let code: String; let display: 
 struct FHIRQuantity: Codable { let value: Double; let unit, system, code: String }
 struct FHIRReference: Codable { let reference: String }
 
-// Binary NDJSON blob
-struct FHIRBinary: Codable {
-    let resourceType = "Binary"
-    let contentType: String
-    let data: String
-}
-
-// Bundle transaction for batch
 struct FHIRBundle: Encodable {
     let resourceType = "Bundle"
     let type: String
@@ -256,7 +282,6 @@ struct FHIRBundleEntry: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(request, forKey: .request)
-        // Dynamically encode the wrapped resource
         try resource.encode(to: container.superEncoder(forKey: .resource))
     }
 
@@ -268,8 +293,6 @@ struct FHIRBundleRequest: Codable {
     let method: String
     let url: String
 }
-
-typealias CodableResource = Codable & Any
 
 // Date extension for fractional seconds
 extension Date {

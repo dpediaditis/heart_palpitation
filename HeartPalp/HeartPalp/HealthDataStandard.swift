@@ -4,14 +4,32 @@ import HealthKit
 
 /// A Spezi standard that reacts to new HealthKit samples by pushing them to a FHIR server.
 actor HealthDataStandard: Standard, HealthKitConstraint {
+    /// Specify which HealthKit sample types to observe (including ECG)
+    static var sampleTypes: [HKSampleType] {
+        [
+            // Include ECG type explicitly
+            HKObjectType.electrocardiogramType(),
+            // Quantity types handled by HealthKitConstraint
+            HKObjectType.quantityType(forIdentifier: .heartRate)!,
+            HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
+            HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!,
+            HKObjectType.quantityType(forIdentifier: .stepCount)!,
+            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+            HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
+            HKObjectType.quantityType(forIdentifier: .appleStandTime)!,
+            HKObjectType.quantityType(forIdentifier: .bloodGlucose)!
+        ]
+    }
+
     private let fhirService = FHIRDataService()
 
     func handleNewSamples<Sample>(
         _ addedSamples: some Collection<Sample>,
         ofType sampleType: SampleType<Sample>
     ) async {
-        // 1️⃣ ECG samples
-        if let ecgSamples = addedSamples as? [HKElectrocardiogram], !ecgSamples.isEmpty {
+        // Extract ECG samples in a safe way
+        let ecgSamples = addedSamples.compactMap { $0 as? HKElectrocardiogram }
+        if !ecgSamples.isEmpty {
             do {
                 try await fhirService.uploadAllHealthData(
                     hrSamples:       [],
