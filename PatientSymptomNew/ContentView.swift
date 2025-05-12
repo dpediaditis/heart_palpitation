@@ -6,56 +6,44 @@
 //
 
 import SwiftUI
-import SwiftData
+import SpeziQuestionnaire
+import ModelsR4
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    var questionnaire: Questionnaire? {
+        if let url = Bundle.main.url(forResource: "PatientSymptomQuestionnaire", withExtension: "json") {
+            print("Found file at: \(url)")
+            if let data = try? Data(contentsOf: url) {
+                do {
+                    let resource = try JSONDecoder().decode(Questionnaire.self, from: data)
+                    print("Successfully decoded questionnaire")
+                    return resource
+                } catch {
+                    print("Decoding error: \(error)")
+                }
+            } else {
+                print("Failed to load data from file")
+            }
+        } else {
+            print("File not found in bundle")
+        }
+        return nil
+    }
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        if let questionnaire = questionnaire {
+            QuestionnaireView(
+                questionnaire: questionnaire,
+                questionnaireResult: { result in
+                    // This closure is called when the questionnaire is completed
+                    print("Questionnaire completed: \(result)")
+                    // You can save, upload, or process the result here
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
+        } else {
+            Text("Failed to load questionnaire.")
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

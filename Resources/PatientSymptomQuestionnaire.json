@@ -1,0 +1,225 @@
+{
+  "title": "Heart Survey",
+  "resourceType": "Questionnaire",
+  "language": "en-US",
+  "status": "draft",
+  "meta": {
+    "profile": [
+      "http://spezi.health/fhir/StructureDefinition/sdf-Questionnaire"
+    ],
+    "tag": [
+      {
+        "system": "urn:ietf:bcp:47",
+        "code": "en-US",
+        "display": "English"
+      }
+    ]
+  },
+  "useContext": [
+    {
+      "code": {
+        "system": "http://hl7.org/fhir/ValueSet/usage-context-type",
+        "code": "focus",
+        "display": "Clinical Focus"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.1.8655",
+            "display": "Heart Survey"
+          }
+        ]
+      }
+    }
+  ],
+  "contact": [
+    {}
+  ],
+  "subjectType": [
+    "Patient"
+  ],
+  "contained": [
+    {
+      "url": "http://spezi.health/fhir/ValueSet/Predefined",
+      "resourceType": "ValueSet",
+      "id": "1101",
+      "version": "1.0",
+      "name": "urn:oid:1101",
+      "title": "Yes / No",
+      "status": "draft",
+      "publisher": "NHN",
+      "compose": {
+        "include": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.1101",
+            "concept": [
+              {
+                "code": "1",
+                "display": "Yes"
+              },
+              {
+                "code": "2",
+                "display": "No"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "url": "http://spezi.health/fhir/ValueSet/Predefined",
+      "resourceType": "ValueSet",
+      "id": "9523",
+      "version": "1.0",
+      "name": "urn:oid:9523",
+      "title": "Yes / No / Unsure",
+      "status": "draft",
+      "compose": {
+        "include": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.9523",
+            "concept": [
+              {
+                "code": "1",
+                "display": "Yes"
+              },
+              {
+                "code": "2",
+                "display": "No"
+              },
+              {
+                "code": "3",
+                "display": "Unsure"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "86b4c474-5128-4afd-812f-38f49f3029ba",
+      "type": "group",
+      "text": "Cardiac Symptoms",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "page",
+                "display": "Page"
+              }
+            ],
+            "text": "Page"
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "9f559098-2492-471f-e81f-f86be0d76ba9",
+          "type": "choice",
+          "text": "Irregular rhythm\n",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "answerValueSet": "#9523"
+        },
+        {
+          "linkId": "48b7f776-c0ea-4525-a66b-03d7996fabbd",
+          "type": "choice",
+          "text": "Slow heartbeat\n",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "answerValueSet": "#9523"
+        },
+        {
+          "linkId": "d05158a6-cb7c-427d-891b-c0f8023fb69b",
+          "type": "choice",
+          "text": "Fast Heartbeat\n",
+          "required": false,
+          "answerValueSet": "#1101",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "check-box"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "bd49b2d7-ee61-4f1e-98ec-20d6f88b221c",
+          "type": "choice",
+          "text": "Fluttering in chest\n",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "answerValueSet": "#9523"
+        },
+        {
+          "linkId": "2cc439e3-681f-4086-fa65-5d74ded843f9",
+          "type": "choice",
+          "text": "Pounding sensation\n",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "check-box"
+                  }
+                ]
+              }
+            }
+          ],
+          "answerValueSet": "#9523"
+        }
+      ],
+      "required": false
+    }
+  ]
+}

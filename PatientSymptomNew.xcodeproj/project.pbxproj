@@ -6,8 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0573DBB82DBF87A4004A2A2E /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 0573DBB72DBF87A4004A2A2E /* SpeziQuestionnaire */; };
+		0573DBBA2DBF87A4004A2A2E /* SpeziTimedWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 0573DBB92DBF87A4004A2A2E /* SpeziTimedWalkTest */; };
+		0573DBBC2DBF885C004A2A2E /* PatientSymptomQuestionnaire.json in Resources */ = {isa = PBXBuildFile; fileRef = 0573DBBB2DBF885B004A2A2E /* PatientSymptomQuestionnaire.json */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		054888532DBF848800508C93 /* PatientSymptomNew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PatientSymptomNew.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0573DBBB2DBF885B004A2A2E /* PatientSymptomQuestionnaire.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PatientSymptomQuestionnaire.json; sourceTree = "<group>"; };
+		0573DBD52DC561D7004A2A2E /* PatientSymptomQuestionnaire.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PatientSymptomQuestionnaire.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +31,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0573DBB82DBF87A4004A2A2E /* SpeziQuestionnaire in Frameworks */,
+				0573DBBA2DBF87A4004A2A2E /* SpeziTimedWalkTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +42,8 @@
 		0548884A2DBF848800508C93 = {
 			isa = PBXGroup;
 			children = (
+				0573DBD42DC56124004A2A2E /* Resources */,
+				0573DBBB2DBF885B004A2A2E /* PatientSymptomQuestionnaire.json */,
 				054888552DBF848800508C93 /* PatientSymptomNew */,
 				054888542DBF848800508C93 /* Products */,
 			);
@@ -43,6 +55,14 @@
 				054888532DBF848800508C93 /* PatientSymptomNew.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0573DBD42DC56124004A2A2E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0573DBD52DC561D7004A2A2E /* PatientSymptomQuestionnaire.json */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +85,8 @@
 			);
 			name = PatientSymptomNew;
 			packageProductDependencies = (
+				0573DBB72DBF87A4004A2A2E /* SpeziQuestionnaire */,
+				0573DBB92DBF87A4004A2A2E /* SpeziTimedWalkTest */,
 			);
 			productName = PatientSymptomNew;
 			productReference = 054888532DBF848800508C93 /* PatientSymptomNew.app */;
@@ -94,6 +116,9 @@
 			);
 			mainGroup = 0548884A2DBF848800508C93;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0573DBB62DBF87A4004A2A2E /* XCRemoteSwiftPackageReference "SpeziQuestionnaire" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 054888542DBF848800508C93 /* Products */;
 			projectDirPath = "";
@@ -109,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0573DBBC2DBF885C004A2A2E /* PatientSymptomQuestionnaire.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +350,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0573DBB62DBF87A4004A2A2E /* XCRemoteSwiftPackageReference "SpeziQuestionnaire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordSpezi/SpeziQuestionnaire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0573DBB72DBF87A4004A2A2E /* SpeziQuestionnaire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0573DBB62DBF87A4004A2A2E /* XCRemoteSwiftPackageReference "SpeziQuestionnaire" */;
+			productName = SpeziQuestionnaire;
+		};
+		0573DBB92DBF87A4004A2A2E /* SpeziTimedWalkTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0573DBB62DBF87A4004A2A2E /* XCRemoteSwiftPackageReference "SpeziQuestionnaire" */;
+			productName = SpeziTimedWalkTest;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0548884B2DBF848800508C93 /* Project object */;
 }
