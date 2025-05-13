@@ -7,20 +7,23 @@ class FHIRDataService: ObservableObject {
     @Published var isUploading = false
     @Published var lastSyncDate: Date?
 
-    private let serverURL = "http://localhost:8080/fhir"
+    //private let serverURL = "http://localhost:8080/fhir"
+    private let serverURL = "https://gw.interop.community/hp2025stan/open"
     private let healthStore = HKHealthStore()
 
     /// Create a basic Patient resource (once)
     func createPatient() async throws {
         let patient: [String: Any] = [
             "resourceType": "Patient",
-            "id": "example-patient-id",
+            "id": "example-patient-id3",
             "name": [[
-                "given": ["Test"],
-                "family": "User"
-            ]]
+                "given": ["Atmos"],
+                "family": "Aaron"
+            ]],
+            "gender" : "male",
+            "birthDate" : "1991-01-20"
         ]
-        let url = URL(string: "\(serverURL)/Patient/example-patient-id")!
+        let url = URL(string: "\(serverURL)/Patient/example-patient-id3")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
@@ -75,7 +78,7 @@ class FHIRDataService: ObservableObject {
         ecgSamples: [HKElectrocardiogram]
     ) async throws {
         try await createPatient()
-        let patientRef = FHIRReference(reference: "Patient/example-patient-id")
+        let patientRef = FHIRReference(reference: "Patient/example-patient-id3")
 
         // Build Observation resources
         var entries: [FHIRBundleEntry] = []

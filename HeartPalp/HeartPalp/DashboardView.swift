@@ -32,8 +32,8 @@ struct DashboardView: View {
     @HealthKitQuery(.bloodGlucose, timeRange: .today) private var glucoseSamples
     @HealthKitQuery(.bloodGlucose, timeRange: .currentYear) private var allGlucoseSamples
 
-
     @StateObject private var fhirService = FHIRDataService()
+    @State private var showingMeasurementView = false
 
     // MARK: – Picker state
     enum Range: String, CaseIterable, Identifiable {
@@ -73,7 +73,7 @@ struct DashboardView: View {
                 with: .milli,
                 molarMass: HKUnitMolarMassBloodGlucose
             )
-            .unitDivided(by: HKUnit.liter())   // “per L”
+            .unitDivided(by: HKUnit.liter())   // "per L"
 
         // 2) mg/dL unit
         let mgPerDlUnit = HKUnit
@@ -125,6 +125,25 @@ struct DashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
+                    // Emergency Measurement Button
+                    Button(action: {
+                        showingMeasurementView = true
+                    }) {
+                        VStack(spacing: 12) {
+                            Text("Start Measurement")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Image(systemName: "cross.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .background(Color.red)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
                     // Vital cards
                     VitalCard(
                         title: "Current Heart Rate",
@@ -134,32 +153,33 @@ struct DashboardView: View {
                         samples: Array(hrTodaySamples)
                     )
                     .padding(.horizontal)
+                    
                     // 2) Grid of the other three small cards
-                                        LazyVGrid(columns: twoColumn, spacing: 16) {
-                                            VitalCard(
-                                                title: "Resting HR",
-                                                value: latestResting,
-                                                icon: "bed.double.fill",
-                                                color: .blue,
-                                                samples: Array(restingHR)
-                                            )
-                                            
-                                            VitalCard(
-                                                title: "Oxygen Saturation",
-                                                value: latestO2,
-                                                icon: "lungs.fill",
-                                                color: .teal,
-                                                samples: Array(oxygen)
-                                            )
-                                            
-                                            VitalCard(
-                                                title: "Glucose",
-                                                value: latestGlucose,
-                                                icon: "drop.fill",
-                                                color: .purple,
-                                                samples: Array(glucoseSamples)
-                                            )
-                                            
+                    LazyVGrid(columns: twoColumn, spacing: 16) {
+                        VitalCard(
+                            title: "Resting HR",
+                            value: latestResting,
+                            icon: "bed.double.fill",
+                            color: .blue,
+                            samples: Array(restingHR)
+                        )
+                        
+                        VitalCard(
+                            title: "Oxygen Saturation",
+                            value: latestO2,
+                            icon: "lungs.fill",
+                            color: .teal,
+                            samples: Array(oxygen)
+                        )
+                        
+                        VitalCard(
+                            title: "Glucose",
+                            value: latestGlucose,
+                            icon: "drop.fill",
+                            color: .purple,
+                            samples: Array(glucoseSamples)
+                        )
+                        
                     }
                     ActivityRingCard()
                     .padding(.horizontal)
@@ -216,26 +236,31 @@ struct DashboardView: View {
                 .padding(.vertical)
                 .navigationTitle("Health Dashboard")
                 .onAppear {
-                                    Task {
-                                        guard fhirService.lastSyncDate == nil else { return }
-                                        do {
-                                            try await fhirService.uploadAllHealthData(
-                                                hrSamples:       Array(hrAllSamples),
-                                                restingSamples:  Array(allRestingHR),
-                                                oxygenSamples:   Array(allOxygen),
-                                                stepSamples:     Array(allSteps),
-                                                energySamples:   Array(allEnergy),
-                                                exerciseSamples: Array(allExercise),
-                                                standSamples:    Array(allStand),
-                                                glucoseSamples:  Array(allGlucoseSamples),
-                                                ecgSamples:      Array(ecgSamples)
-                                            )
-                                            print("✅ Initial full-sync completed")
-                                        } catch {
-                                            print("❌ Initial sync failed: \(error)")
-                                        }
-                                    }
-                                }
+                    Task {
+                        guard fhirService.lastSyncDate == nil else { return }
+                        do {
+                            try await fhirService.uploadAllHealthData(
+                                hrSamples:       Array(hrAllSamples),
+                                restingSamples:  Array(allRestingHR),
+                                oxygenSamples:   Array(allOxygen),
+                                stepSamples:     Array(allSteps),
+                                energySamples:   Array(allEnergy),
+                                exerciseSamples: Array(allExercise),
+                                standSamples:    Array(allStand),
+                                glucoseSamples:  Array(allGlucoseSamples),
+                                ecgSamples:      Array(ecgSamples)
+                            )
+                            print("✅ Initial full-sync completed")
+                        } catch {
+                            print("❌ Initial sync failed: \(error)")
+                        }
+                    }
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showingMeasurementView) {
+            NavigationView {
+                HeartEpisodeMeasurementView()
             }
         }
     }
