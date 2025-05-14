@@ -3,6 +3,7 @@ import SwiftUI
 struct HeartEpisodeMeasurementView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingECGMeasurement = false
+    @Binding var isPresented: Bool
     
     var body: some View {
         VStack(spacing: 24) {
@@ -24,6 +25,7 @@ struct HeartEpisodeMeasurementView: View {
             Spacer()
             
             Button(action: {
+                // Show ECG measurement view
                 showingECGMeasurement = true
             }) {
                 Text("Continue to measurement")
@@ -41,7 +43,7 @@ struct HeartEpisodeMeasurementView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    dismiss()
+                    isPresented = false
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
@@ -51,7 +53,7 @@ struct HeartEpisodeMeasurementView: View {
         }
         .fullScreenCover(isPresented: $showingECGMeasurement) {
             NavigationView {
-                ECGMeasurementView()
+                ECGMeasurementView(isPresented: $isPresented)
             }
         }
     }

@@ -260,7 +260,7 @@ struct DashboardView: View {
         }
         .fullScreenCover(isPresented: $showingMeasurementView) {
             NavigationView {
-                HeartEpisodeMeasurementView()
+                HeartEpisodeMeasurementView(isPresented: $showingMeasurementView)
             }
         }
     }

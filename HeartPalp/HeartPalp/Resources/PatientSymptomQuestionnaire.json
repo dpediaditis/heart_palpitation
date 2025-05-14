@@ -1,0 +1,283 @@
+{
+  "title": "I'm feeling like...",
+  "resourceType": "Questionnaire",
+  "language": "en-US",
+  "status": "draft",
+  "meta": {
+    "profile": [
+      "http://spezi.health/fhir/StructureDefinition/sdf-Questionnaire"
+    ],
+    "tag": [
+      {
+        "system": "urn:ietf:bcp:47",
+        "code": "en-US",
+        "display": "English"
+      }
+    ]
+  },
+  "useContext": [
+    {
+      "code": {
+        "system": "http://hl7.org/fhir/ValueSet/usage-context-type",
+        "code": "focus",
+        "display": "Clinical Focus"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.1.8655",
+            "display": "I'm feeling like..."
+          }
+        ]
+      }
+    }
+  ],
+  "contact": [
+    {}
+  ],
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "9fa5e5de-14a8-49fe-9454-c76ceb5319b8",
+      "type": "open-choice",
+      "text": "Did you feel any of the HEART related symptoms mentioned below?",
+      "required": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "c46c55ef-dc6d-4e9b-a66e-0a367815f66a",
+            "code": "fast-heartbeat",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Fast heartbeat"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d6108418-553d-4a72-89d5-242a5be825e9",
+            "code": "slow-heartbeat",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Slow heartbeat"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a621171d-288f-440e-f1a6-c56f75c85d16",
+            "code": "skipped-beat/-extra-beat",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Skipped beat/ Extra beat"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "dc9d4e89-087c-4cd0-88dd-b9a0a910372b",
+            "code": "fluttering-sensation",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Fluttering sensation"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d0965df4-fb60-4fa0-91c5-af75abc98e27",
+            "code": "pounding-sensation-in-chest",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Pounding sensation in chest"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "e2787b94-679d-4d62-879e-050ee8f0267a",
+            "code": "difficulty-breathing",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Difficulty breathing"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "6b489c5a-3413-4210-854b-589bccc1de2f",
+            "code": "chest-pain/discomfort",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Chest pain/discomfort"
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "check-box"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "d23c351c-36ee-4c28-e471-e560c8812f42",
+      "type": "open-choice",
+      "text": "Did you feel any of the GENERAL symptoms mentioned below?",
+      "required": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "c46c55ef-dc6d-4e9b-a66e-0a367815f66a",
+            "code": "fainting/near-fainting",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Fainting/Near fainting"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d6108418-553d-4a72-89d5-242a5be825e9",
+            "code": "dizziness",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Dizziness"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a621171d-288f-440e-f1a6-c56f75c85d16",
+            "code": "fatigue/-weakness",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Fatigue/ Weakness"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "96d4d032-c68f-483f-a450-703c90a7380c",
+            "code": "sweating",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Sweating"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "dc9d4e89-087c-4cd0-88dd-b9a0a910372b",
+            "code": "anxiety/-panic-feeling",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Anxiety/ Panic feeling"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d0965df4-fb60-4fa0-91c5-af75abc98e27",
+            "code": "frequent-urination",
+            "system": "urn:uuid:fa82a7ae-c2e9-4a19-8785-d0e4067a9beb",
+            "display": "Frequent Urination"
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "check-box"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "d4602ebd-a22c-4c0e-8073-a14cd3720e98",
+      "type": "display",
+      "text": "⚠️ If you experience chest pain or fainting or near fainting like symptoms, please contact emergency services immediately by calling 112",
+      "required": false
+    },
+    {
+      "linkId": "05b83b6c-6f5d-4565-81c5-98b17f39224e",
+      "type": "choice",
+      "text": "How severe were your symptoms?",
+      "required": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
+            "code": "mild",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "Mild"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
+            "code": "moderate",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "Moderate"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
+            "code": "severe",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "Severe"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
+            "code": "disabling",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "Disabling"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "950fc753-ceeb-4b1d-8b44-7187509aabf7",
+      "type": "choice",
+      "text": "How long was the duration of the episode?",
+      "required": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
+            "code": "⏱️just-a-few-seconds",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "⏱️Just a few seconds"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
+            "code": "⏱️less-than-5-minutes",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "⏱️Less than 5 minutes"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
+            "code": "⏱️5-15-minutes",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "⏱️5-15 minutes"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
+            "code": "⏱️15-30-minutes",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "⏱️15-30 minutes"
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d2",
+            "code": "⏱️more-than-30-minutes",
+            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
+            "display": "⏱️More than 30 minutes"
+          }
+        }
+      ]
+    }
+  ]
+} 

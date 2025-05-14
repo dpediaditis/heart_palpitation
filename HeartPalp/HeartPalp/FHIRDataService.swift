@@ -7,9 +7,14 @@ class FHIRDataService: ObservableObject {
     @Published var isUploading = false
     @Published var lastSyncDate: Date?
 
-    //private let serverURL = "http://localhost:8080/fhir"
-    private let serverURL = "https://gw.interop.community/hp2025stan/open"
+    private let baseURL: String
+    private let session: URLSession
     private let healthStore = HKHealthStore()
+
+    init(baseURL: String = "https://gw.interop.community/hp2025stan/open") {
+        self.baseURL = baseURL
+        self.session = URLSession.shared
+    }
 
     /// Create a basic Patient resource (once)
     func createPatient() async throws {
@@ -23,46 +28,38 @@ class FHIRDataService: ObservableObject {
             "gender" : "male",
             "birthDate" : "1991-01-20"
         ]
-        let url = URL(string: "\(serverURL)/Patient/example-patient-id3")!
+        let url = URL(string: "\(baseURL)/Patient/example-patient-id3")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: patient)
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await session.data(for: request)
         if let httpResponse = response as? HTTPURLResponse {
             print("👤 Patient Status: \(httpResponse.statusCode)")
         }
     }
     
     /// Posts a completed QuestionnaireResponse payload to the FHIR server
-    func uploadQuestionnaireResponse(_ jsonData: Data) async throws {
-        let url = URL(string: "\(serverURL)/QuestionnaireResponse")!
+    func uploadQuestionnaireResponse(_ response: [String: Any]) async throws {
+        guard let url = URL(string: "\(baseURL)/QuestionnaireResponse") else {
+            throw URLError(.badURL)
+        }
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: response)
         request.httpBody = jsonData
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("❌ Not an HTTP response")
-            throw FHIRError.uploadFailed
+        
+        let (_, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
         }
-
-        if !(200...299).contains(httpResponse.statusCode) {
-            let body = String(data: data, encoding: .utf8) ?? "<no body>"
-            print("""
-            ❌ QuestionnaireResponse upload failed
-              Status: \(httpResponse.statusCode)
-              Body:
-            \(body)
-            """)
-            throw FHIRError.uploadFailed
-        }
-
-        print("✅ QuestionnaireResponse posted: \(httpResponse.statusCode)")
     }
-
 
     /// Upload all health data in a single FHIR transaction Bundle,
     /// with ECG waveform encoded as SampledData
@@ -217,21 +214,41 @@ class FHIRDataService: ObservableObject {
 
         // Build and POST transaction Bundle
         let bundle = FHIRBundle(type: "transaction", entry: entries)
-        let bundleURL = URL(string: serverURL)!
+        let bundleURL = URL(string: baseURL)!
         var bundleReq = URLRequest(url: bundleURL)
         bundleReq.httpMethod = "POST"
         bundleReq.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
         bundleReq.httpBody = try JSONEncoder().encode(bundle)
 
-        let (_, response) = try await URLSession.shared.data(for: bundleReq)
+        let (_, response) = try await session.data(for: bundleReq)
         if let httpResponse = response as? HTTPURLResponse {
             print("📡 Bundle POST status: \(httpResponse.statusCode)")
         }
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-            throw FHIRError.uploadFailed
+            throw URLError(.badServerResponse)
         }
 
         DispatchQueue.main.async { self.lastSyncDate = Date() }
+    }
+
+    func uploadECGData(_ ecgData: [String: Any]) async throws {
+        guard let url = URL(string: "\(baseURL)/Observation") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: ecgData)
+        request.httpBody = jsonData
+        
+        let (_, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
     }
 }
 

@@ -1,9 +1,12 @@
 import SwiftUI
 import SafariServices
+import SpeziQuestionnaire
 
 struct ECGMeasurementView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingECGGuide = false
+    @State private var showingSymptomSurvey = false
+    @Binding var isPresented: Bool
     
     var body: some View {
         VStack(spacing: 32) {
@@ -37,8 +40,8 @@ struct ECGMeasurementView: View {
             
             VStack(spacing: 16) {
                 Button(action: {
-                    // TODO: Navigate to symptom survey
-                    dismiss()
+                    // Show symptom survey
+                    showingSymptomSurvey = true
                 }) {
                     Text("Continue to Symptom Survey")
                         .font(.headline)
@@ -50,8 +53,8 @@ struct ECGMeasurementView: View {
                 }
                 
                 Button(action: {
-                    // TODO: Skip to symptom survey
-                    dismiss()
+                    // Show symptom survey
+                    showingSymptomSurvey = true
                 }) {
                     Text("Skip")
                         .font(.headline)
@@ -69,7 +72,7 @@ struct ECGMeasurementView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    dismiss()
+                    isPresented = false
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
@@ -79,6 +82,11 @@ struct ECGMeasurementView: View {
         }
         .sheet(isPresented: $showingECGGuide) {
             SafariView(url: URL(string: "https://support.apple.com/en-us/120278")!)
+        }
+        .fullScreenCover(isPresented: $showingSymptomSurvey) {
+            NavigationView {
+                SymptomSurveyView(isPresented: $isPresented)
+            }
         }
     }
 }
@@ -90,6 +98,5 @@ struct SafariView: UIViewControllerRepresentable {
         return SFSafariViewController(url: url)
     }
     
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
-    }
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 } 
