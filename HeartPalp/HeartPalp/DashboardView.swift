@@ -139,7 +139,7 @@ struct DashboardView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 120)
-                        .background(Color.red)
+                        .background(Color.teal)
                         .cornerRadius(12)
                     }
                     .padding(.horizontal)
@@ -237,22 +237,41 @@ struct DashboardView: View {
                 .navigationTitle("Health Dashboard")
                 .onAppear {
                     Task {
-                        guard fhirService.lastSyncDate == nil else { return }
                         do {
-                            try await fhirService.uploadAllHealthData(
-                                hrSamples:       Array(hrAllSamples),
-                                restingSamples:  Array(allRestingHR),
-                                oxygenSamples:   Array(allOxygen),
-                                stepSamples:     Array(allSteps),
-                                energySamples:   Array(allEnergy),
-                                exerciseSamples: Array(allExercise),
-                                standSamples:    Array(allStand),
-                                glucoseSamples:  Array(allGlucoseSamples),
-                                ecgSamples:      Array(ecgSamples)
-                            )
-                            print("✅ Initial full-sync completed")
+                            let lastSync = fhirService.lastSyncDate ?? Date.distantPast
+                            
+                            // Filter samples to only include those after last sync
+                            let newHRSamples = Array(hrAllSamples.filter { $0.startDate > lastSync })
+                            let newRestingSamples = Array(allRestingHR.filter { $0.startDate > lastSync })
+                            let newOxygenSamples = Array(allOxygen.filter { $0.startDate > lastSync })
+                            let newStepSamples = Array(allSteps.filter { $0.startDate > lastSync })
+                            let newEnergySamples = Array(allEnergy.filter { $0.startDate > lastSync })
+                            let newExerciseSamples = Array(allExercise.filter { $0.startDate > lastSync })
+                            let newStandSamples = Array(allStand.filter { $0.startDate > lastSync })
+                            let newGlucoseSamples = Array(allGlucoseSamples.filter { $0.startDate > lastSync })
+                            let newECGSamples = Array(ecgSamples.filter { $0.startDate > lastSync })
+                            
+                            // Only sync if we have new data
+                            if !newHRSamples.isEmpty || !newRestingSamples.isEmpty || !newOxygenSamples.isEmpty ||
+                               !newStepSamples.isEmpty || !newEnergySamples.isEmpty || !newExerciseSamples.isEmpty ||
+                               !newStandSamples.isEmpty || !newGlucoseSamples.isEmpty || !newECGSamples.isEmpty {
+                                try await fhirService.uploadAllHealthData(
+                                    hrSamples: newHRSamples,
+                                    restingSamples: newRestingSamples,
+                                    oxygenSamples: newOxygenSamples,
+                                    stepSamples: newStepSamples,
+                                    energySamples: newEnergySamples,
+                                    exerciseSamples: newExerciseSamples,
+                                    standSamples: newStandSamples,
+                                    glucoseSamples: newGlucoseSamples,
+                                    ecgSamples: newECGSamples
+                                )
+                                print("✅ Synced new data since last sync")
+                            } else {
+                                print("ℹ️ No new data to sync")
+                            }
                         } catch {
-                            print("❌ Initial sync failed: \(error)")
+                            print("❌ Sync failed: \(error)")
                         }
                     }
                 }

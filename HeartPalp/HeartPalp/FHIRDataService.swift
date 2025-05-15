@@ -5,7 +5,15 @@ import SwiftUI
 /// A service to handle FHIR-formatted data export and API communication using FHIR Bundles
 class FHIRDataService: ObservableObject {
     @Published var isUploading = false
-    @Published var lastSyncDate: Date?
+    @Published var lastSyncDate: Date? {
+        didSet {
+            if let date = lastSyncDate {
+                UserDefaults.standard.set(date, forKey: "lastSyncDate")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "lastSyncDate")
+            }
+        }
+    }
 
     private let baseURL: String
     private let session: URLSession
@@ -14,21 +22,23 @@ class FHIRDataService: ObservableObject {
     init(baseURL: String = "https://gw.interop.community/hp2025stan/open") {
         self.baseURL = baseURL
         self.session = URLSession.shared
+        // Load last sync date from UserDefaults
+        self.lastSyncDate = UserDefaults.standard.object(forKey: "lastSyncDate") as? Date
     }
 
     /// Create a basic Patient resource (once)
     func createPatient() async throws {
         let patient: [String: Any] = [
             "resourceType": "Patient",
-            "id": "example-patient-id3",
+            "id": "example-patient-id-anton",
             "name": [[
-                "given": ["Atmos"],
-                "family": "Aaron"
+                "given": ["Phone"],
+                "family": "Anton"
             ]],
             "gender" : "male",
-            "birthDate" : "1991-01-20"
+            "birthDate" : "1999-06-23"
         ]
-        let url = URL(string: "\(baseURL)/Patient/example-patient-id3")!
+        let url = URL(string: "\(baseURL)/Patient/example-patient-id-anton")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
@@ -75,7 +85,7 @@ class FHIRDataService: ObservableObject {
         ecgSamples: [HKElectrocardiogram]
     ) async throws {
         try await createPatient()
-        let patientRef = FHIRReference(reference: "Patient/example-patient-id3")
+        let patientRef = FHIRReference(reference: "Patient/example-patient-id-anton")
 
         // Build Observation resources
         var entries: [FHIRBundleEntry] = []
