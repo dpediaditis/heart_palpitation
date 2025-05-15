@@ -34,6 +34,8 @@ struct DashboardView: View {
 
     @StateObject private var fhirService = FHIRDataService()
     @State private var showingMeasurementView = false
+    @State private var showingSettingsView = false
+    @AppStorage("fibriCheckEnabled") private var fibriCheckEnabled = false
 
     // MARK: – Picker state
     enum Range: String, CaseIterable, Identifiable {
@@ -127,10 +129,14 @@ struct DashboardView: View {
                 VStack(spacing: 24) {
                     // Emergency Measurement Button
                     Button(action: {
-                        showingMeasurementView = true
+                        if fibriCheckEnabled {
+                            showingMeasurementView = true
+                        } else {
+                            showingMeasurementView = true
+                        }
                     }) {
                         VStack(spacing: 12) {
-                            Text("Start Measurement")
+                            Text(fibriCheckEnabled ? "Continue to FibriCheck Measurement" : "Start Measurement")
                                 .font(.headline)
                                 .foregroundColor(.white)
                             Image(systemName: "cross.circle.fill")
@@ -235,6 +241,27 @@ struct DashboardView: View {
                 }
                 .padding(.vertical)
                 .navigationTitle("Health Dashboard")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showingSettingsView = true
+                        }) {
+                            Image(systemName: "gear")
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingSettingsView) {
+                    SettingsView(isPresented: $showingSettingsView)
+                }
+                .sheet(isPresented: $showingMeasurementView) {
+                    NavigationView {
+                        if fibriCheckEnabled {
+                            FibriCheckMeasurementView(isPresented: $showingMeasurementView)
+                        } else {
+                            HeartEpisodeMeasurementView(isPresented: $showingMeasurementView)
+                        }
+                    }
+                }
                 .onAppear {
                     Task {
                         do {
@@ -275,11 +302,6 @@ struct DashboardView: View {
                         }
                     }
                 }
-            }
-        }
-        .fullScreenCover(isPresented: $showingMeasurementView) {
-            NavigationView {
-                HeartEpisodeMeasurementView(isPresented: $showingMeasurementView)
             }
         }
     }
