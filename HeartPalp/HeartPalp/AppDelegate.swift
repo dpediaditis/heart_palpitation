@@ -14,7 +14,7 @@ class AppDelegate: SpeziAppDelegate {
                 CollectSample(.restingHeartRate)
                 CollectSample(.bloodOxygen)
                 CollectSample(.sleepAnalysis)
-                CollectSample(.electrocardiogram, start: .manual)
+                CollectSample(.electrocardiogram, start: .automatic)
                 CollectSample(.stepCount)
                 CollectSample(.distanceWalkingRunning)
                 CollectSample(.activeEnergyBurned)

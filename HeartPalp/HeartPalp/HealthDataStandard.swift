@@ -29,6 +29,7 @@ actor HealthDataStandard: Standard, HealthKitConstraint {
     ) async {
         // Extract ECG samples in a safe way
         let ecgSamples = addedSamples.compactMap { $0 as? HKElectrocardiogram }
+        print("🧪 Found ECG samples: \(ecgSamples.count)")
         if !ecgSamples.isEmpty {
             do {
                 try await fhirService.uploadAllHealthData(
