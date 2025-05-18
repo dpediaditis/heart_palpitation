@@ -188,7 +188,7 @@
     {
       "linkId": "d4602ebd-a22c-4c0e-8073-a14cd3720e98",
       "type": "display",
-      "text": "⚠️ If you experience chest pain or fainting or near fainting like symptoms, please contact emergency services immediately by calling 112",
+      "text": "If you experience chest pain or fainting or near fainting like symptoms, please contact emergency services immediately by calling 112",
       "required": false
     },
     {
@@ -240,41 +240,41 @@
         {
           "valueCoding": {
             "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
-            "code": "⏱️just-a-few-seconds",
+            "code": "just-a-few-seconds",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "⏱️Just a few seconds"
+            "display": "Just a few seconds"
           }
         },
         {
           "valueCoding": {
             "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
-            "code": "⏱️less-than-5-minutes",
+            "code": "less-than-5-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "⏱️Less than 5 minutes"
+            "display": "Less than 5 minutes"
           }
         },
         {
           "valueCoding": {
             "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
-            "code": "⏱️5-15-minutes",
+            "code": "5-15-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "⏱️5-15 minutes"
+            "display": "5-15 minutes"
           }
         },
         {
           "valueCoding": {
             "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
-            "code": "⏱️15-30-minutes",
+            "code": "15-30-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "⏱️15-30 minutes"
+            "display": "15-30 minutes"
           }
         },
         {
           "valueCoding": {
             "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d2",
-            "code": "⏱️more-than-30-minutes",
+            "code": "more-than-30-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "⏱️More than 30 minutes"
+            "display": "More than 30 minutes"
           }
         }
       ]

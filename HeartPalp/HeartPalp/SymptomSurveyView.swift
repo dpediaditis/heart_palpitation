@@ -1,13 +1,9 @@
 import SwiftUI
-import SpeziQuestionnaire
-//import SpeziFHIR
-import SpeziHealthKit
-import ModelsR4
 
 struct SymptomSurveyView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var questionnaireResponse: QuestionnaireResponse?
     @Binding var isPresented: Bool
+    @StateObject private var fhirService = FHIRDataService()
     
     var questionnaire: Questionnaire? {
         do {
@@ -15,6 +11,7 @@ struct SymptomSurveyView: View {
                 print("❌ Could not find PatientSymptomQuestionnaire.json in bundle")
                 return nil
             }
+            
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             return try decoder.decode(Questionnaire.self, from: data)
@@ -26,38 +23,37 @@ struct SymptomSurveyView: View {
     
     var body: some View {
         if let questionnaire = questionnaire {
-            QuestionnaireView(questionnaire: questionnaire) { result in
-                switch result {
-                case .completed(let response):
+            CustomQuestionnaireView(
+                questionnaire: questionnaire,
+                onComplete: { response in
                     print("✅ Questionnaire completed with response")
-                    questionnaireResponse = response
-                    print(response)
-                    // Dismiss all views to return to dashboard
-                    isPresented = false
-                case .cancelled:
-                    print("ℹ️ Questionnaire cancelled")
-                    // Dismiss all views to return to dashboard
-                    isPresented = false
-                case .failed:
-                    print("❌ Questionnaire failed")
-                    // Dismiss all views to return to dashboard
-                    isPresented = false
-                }
-            }
-            .navigationTitle("Symptom Survey")
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        // Dismiss all views to return to dashboard
-                        isPresented = false
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.gray)
+                    
+                    // Print the response for debugging
+                    if let jsonData = try? JSONSerialization.data(withJSONObject: response.toDictionary(), options: [.prettyPrinted, .sortedKeys]),
+                       let jsonString = String(data: jsonData, encoding: .utf8) {
+                        print("\n📋 Final JSON for FHIR server:")
+                        print("----------------------------------------")
+                        print(jsonString)
+                        print("----------------------------------------\n")
                     }
+                    
+                    // Send to FHIR server
+                    Task {
+                        do {
+                            try await fhirService.uploadQuestionnaireResponse(response.toDictionary())
+                            print("✅ Successfully sent questionnaire response to FHIR server")
+                        } catch {
+                            print("❌ Failed to send questionnaire response to FHIR server: \(error)")
+                        }
+                    }
+                    
+                    isPresented = false
+                },
+                onCancel: {
+                    print("ℹ️ Questionnaire cancelled")
+                    isPresented = false
                 }
-            }
+            )
         } else {
             VStack(spacing: 20) {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -72,7 +68,6 @@ struct SymptomSurveyView: View {
                     .foregroundColor(.secondary)
                 
                 Button(action: {
-                    // Dismiss all views to return to dashboard
                     isPresented = false
                 }) {
                     Text("Go Back")

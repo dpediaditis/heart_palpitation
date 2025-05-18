@@ -30,7 +30,7 @@ class FHIRDataService: ObservableObject {
     func createPatient() async throws {
         let patient: [String: Any] = [
             "resourceType": "Patient",
-            "id": "example-patient-id-anton",
+            "id": "example-patient-id-anton1",
             "name": [[
                 "given": ["Phone"],
                 "family": "Anton"
@@ -38,7 +38,7 @@ class FHIRDataService: ObservableObject {
             "gender" : "male",
             "birthDate" : "1999-06-23"
         ]
-        let url = URL(string: "\(baseURL)/Patient/example-patient-id-anton")!
+        let url = URL(string: "\(baseURL)/Patient/example-patient-id-anton1")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.addValue("application/fhir+json", forHTTPHeaderField: "Content-Type")
@@ -85,7 +85,7 @@ class FHIRDataService: ObservableObject {
         ecgSamples: [HKElectrocardiogram]
     ) async throws {
         try await createPatient()
-        let patientRef = FHIRReference(reference: "Patient/example-patient-id-anton")
+        let patientRef = FHIRReference(reference: "Patient/example-patient-id-anton1")
 
         // Build Observation resources
         var entries: [FHIRBundleEntry] = []

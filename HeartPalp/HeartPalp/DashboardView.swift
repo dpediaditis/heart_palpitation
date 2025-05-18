@@ -187,6 +187,7 @@ struct DashboardView: View {
                         )
                         
                     }
+                    .padding(.horizontal)
                     ActivityRingCard()
                     .padding(.horizontal)
                    
