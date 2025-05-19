@@ -1,12 +1,26 @@
 import SwiftUI
+import HealthKit
+import SpeziHealthKit
+import SpeziHealthKitUI
 
 struct CustomQuestionnaireView: View {
     let questionnaire: Questionnaire
     let onComplete: (QuestionnaireResponse) -> Void
     let onCancel: () -> Void
+    @Binding var shouldIncludePartOf: Bool
+    
+    init(questionnaire: Questionnaire, onComplete: @escaping (QuestionnaireResponse) -> Void, onCancel: @escaping () -> Void, shouldIncludePartOf: Binding<Bool>) {
+        self.questionnaire = questionnaire
+        self.onComplete = onComplete
+        self.onCancel = onCancel
+        self._shouldIncludePartOf = shouldIncludePartOf
+        print("📱 CustomQuestionnaireView: Initialized with shouldIncludePartOf = \(shouldIncludePartOf.wrappedValue)")
+    }
     
     @State private var answers: [String: Any] = [:]
     @State private var currentPage = 0
+    @StateObject private var fhirService = FHIRDataService()
+    @HealthKitQuery(.electrocardiogram, timeRange: .currentYear) private var ecgSamples
     
     var body: some View {
         VStack {
@@ -120,19 +134,122 @@ struct CustomQuestionnaireView: View {
             }
         }
         
-        let response = createResponse()
-        onComplete(response)
+        Task {
+            do {
+                let response = try await createResponse()
+                onComplete(response)
+            } catch {
+                print("❌ Error creating response: \(error)")
+            }
+        }
     }
     
-    private func createResponse() -> QuestionnaireResponse {
+    private func createResponse() async throws -> QuestionnaireResponse {
         let responseItems = questionnaire.item.map { item in
             createResponseItem(from: item)
         }
         
-        return QuestionnaireResponse(
+        // Create base response
+        var response = QuestionnaireResponse(
             authored: ISO8601DateFormatter().string(from: Date()),
-            item: responseItems
+            item: responseItems,
+            subject: FHIRReference(reference: "Patient/example-patient-id-anton1")
         )
+        
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("📊 ECG Data Debug Information:")
+        print("shouldIncludePartOf: \(shouldIncludePartOf)")
+        
+        // If shouldIncludePartOf is true, sync data and fetch recent ECG measurements
+        if shouldIncludePartOf {
+            let previousLastSyncDateTimestamp = fhirService.lastSyncDate
+            print("📅 Previous last sync date: \(previousLastSyncDateTimestamp?.description ?? "None")")
+            
+            // Debug all available ECG samples
+            print("\n📊 All available ECG samples:")
+            print("Total samples: \(ecgSamples.count)")
+            for (index, sample) in ecgSamples.enumerated() {
+                print("Sample \(index + 1):")
+                print("  - Start Date: \(sample.startDate)")
+                print("  - End Date: \(sample.endDate)")
+                print("  - UUID: \(sample.uuid)")
+            }
+            
+            // Sync data and get sync timestamp
+            print("\n🔄 Syncing ECG data to FHIR server...")
+            do {
+                let lastSync = fhirService.lastSyncDate ?? Date.distantPast
+                print("📅 Last sync date: \(lastSync)")
+                
+                // Filter samples to only include those after last sync
+                let newECGSamples = Array(ecgSamples.filter { $0.startDate > lastSync })
+                print("\n📈 New ECG samples found: \(newECGSamples.count)")
+                for (index, sample) in newECGSamples.enumerated() {
+                    print("  Sample \(index + 1):")
+                    print("    - Start Date: \(sample.startDate)")
+                    print("    - End Date: \(sample.endDate)")
+                    print("    - UUID: \(sample.uuid)")
+                    print("    - Time since last sync: \(sample.startDate.timeIntervalSince(lastSync)) seconds")
+                }
+                
+                // Only sync if we have new data
+                if !newECGSamples.isEmpty {
+                    print("\n📤 Uploading \(newECGSamples.count) new ECG samples...")
+                    try await fhirService.uploadAllHealthData(
+                        hrSamples: [],
+                        restingSamples: [],
+                        oxygenSamples: [],
+                        stepSamples: [],
+                        energySamples: [],
+                        exerciseSamples: [],
+                        standSamples: [],
+                        glucoseSamples: [],
+                        ecgSamples: newECGSamples
+                    )
+                    print("✅ Successfully synced \(newECGSamples.count) new ECG samples")
+                } else {
+                    print("\nℹ️ No new ECG data to sync")
+                    print("  - Last sync was at: \(lastSync)")
+                    print("  - Current time is: \(Date())")
+                    print("  - Time difference: \(Date().timeIntervalSince(lastSync)) seconds")
+                }
+            } catch {
+                print("❌ Sync failed: \(error)")
+                if let error = error as? URLError {
+                    print("  - Error code: \(error.code.rawValue)")
+                    print("  - Error description: \(error.localizedDescription)")
+                }
+            }
+            
+            // Fetch recent ECG measurements from FHIR server
+            print("\n🔍 Fetching recent ECG measurements from FHIR server...")
+            let recentECGs = try await fhirService.fetchRecentECGMeasurements()
+            print("📊 Found \(recentECGs.count) recent ECG measurements")
+            
+            // Filter ECGs to only include those from the last 5 minutes
+            let filteredECGs = recentECGs.filter { ecg in
+                let dateFormatter = ISO8601DateFormatter()
+                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                
+                guard let date = dateFormatter.date(from: ecg.effectiveDateTime) else {
+                    print("⚠️ Could not parse date for ECG: \(ecg.id)")
+                    return false
+                }
+                
+                let fiveMinutesAgo = Calendar.current.date(byAdding: .minute, value: -5, to: Date())!
+                return date >= fiveMinutesAgo
+            }
+            
+            print("\n📋 Filtered ECGs to include in partOf: \(filteredECGs.count)")
+            for ecg in filteredECGs {
+                print("  - ECG ID: \(ecg.id), Date: \(ecg.effectiveDateTime)")
+            }
+            
+            // Add filtered ECGs to partOf field
+            response.partOf = filteredECGs.map { FHIRReference(reference: "Observation/\($0.id)") }
+        }
+        
+        return response
     }
     
     private func createResponseItem(from item: QuestionnaireItem) -> QuestionnaireResponse.ResponseItem {

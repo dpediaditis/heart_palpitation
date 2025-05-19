@@ -71,6 +71,42 @@ class FHIRDataService: ObservableObject {
         }
     }
 
+    /// Syncs all health data and returns the timestamp of the sync
+    func syncHealthData(
+        hrSamples: [HKQuantitySample],
+        restingSamples: [HKQuantitySample],
+        oxygenSamples: [HKQuantitySample],
+        stepSamples: [HKQuantitySample],
+        energySamples: [HKQuantitySample],
+        exerciseSamples: [HKQuantitySample],
+        standSamples: [HKQuantitySample],
+        glucoseSamples: [HKQuantitySample],
+        ecgSamples: [HKElectrocardiogram]
+    ) async throws -> Date {
+        // Store current timestamp before sync
+        let syncTimestamp = Date()
+        
+        // Perform the sync
+        try await uploadAllHealthData(
+            hrSamples: hrSamples,
+            restingSamples: restingSamples,
+            oxygenSamples: oxygenSamples,
+            stepSamples: stepSamples,
+            energySamples: energySamples,
+            exerciseSamples: exerciseSamples,
+            standSamples: standSamples,
+            glucoseSamples: glucoseSamples,
+            ecgSamples: ecgSamples
+        )
+        
+        // Update lastSyncDate after successful sync
+        await MainActor.run {
+            self.lastSyncDate = syncTimestamp
+        }
+        
+        return syncTimestamp
+    }
+
     /// Upload all health data in a single FHIR transaction Bundle,
     /// with ECG waveform encoded as SampledData
     func uploadAllHealthData(
@@ -101,6 +137,7 @@ class FHIRDataService: ObservableObject {
             let raw = sample.quantity.doubleValue(for: readingUnit)
             let value = transform(raw)
             let obs = FHIRObservation(
+                id: nil,
                 status: "final",
                 code: FHIRCodeableConcept(coding: [
                     FHIRCoding(system: "http://loinc.org", code: loinc, display: display)
@@ -110,7 +147,12 @@ class FHIRDataService: ObservableObject {
                 valueQuantity: FHIRQuantity(value: value, unit: fhirUnit, system: "http://unitsofmeasure.org", code: fhirCode)
             )
             entries.append(
-                FHIRBundleEntry(request: FHIRBundleRequest(method: "POST", url: "Observation"), resource: obs)
+                FHIRBundleEntry(
+                    request: FHIRBundleRequest(method: "POST", url: "Observation"),
+                    resource: obs,
+                    fullUrl: nil,
+                    search: nil
+                )
             )
         }
 
@@ -203,6 +245,7 @@ class FHIRDataService: ObservableObject {
             )
 
             var ecgObs = FHIRObservation(
+                id: nil,
                 status: "final",
                 code: FHIRCodeableConcept(coding: [
                     FHIRCoding(system: "http://loinc.org", code: "131328-4", display: "ECG rhythm strip")
@@ -218,12 +261,21 @@ class FHIRDataService: ObservableObject {
             )]
 
             entries.append(
-                FHIRBundleEntry(request: FHIRBundleRequest(method: "POST", url: "Observation"), resource: ecgObs)
+                FHIRBundleEntry(
+                    request: FHIRBundleRequest(method: "POST", url: "Observation"),
+                    resource: ecgObs,
+                    fullUrl: nil,
+                    search: nil
+                )
             )
         }
 
         // Build and POST transaction Bundle
-        let bundle = FHIRBundle(type: "transaction", entry: entries)
+        let bundle = FHIRBundle(
+            resourceType: "Bundle",
+            type: "transaction",
+            entry: entries
+        )
         let bundleURL = URL(string: baseURL)!
         var bundleReq = URLRequest(url: bundleURL)
         bundleReq.httpMethod = "POST"
@@ -260,6 +312,84 @@ class FHIRDataService: ObservableObject {
             throw URLError(.badServerResponse)
         }
     }
+
+    func fetchRecentECGMeasurements() async throws -> [(id: String, effectiveDateTime: String)] {
+        guard let url = URL(string: "\(baseURL)/Observation?subject=Patient/example-patient-id-anton1&code=http://loinc.org|131328-4&_sort=-date&_count=5&_elements=id,effectiveDateTime") else {
+            throw URLError(.badURL)
+        }
+        
+        print("\n🔍 Fetching ECG measurements from URL: \(url)")
+        let (data, response) = try await session.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+        print("👤 ECG Measurements fetched. HTTP Status: \(httpResponse.statusCode)")
+        
+        // Print raw response data
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("\n📦 Raw FHIR Response:")
+            print("----------------------------------------")
+            print(jsonString)
+            print("----------------------------------------")
+        }
+        
+        do {
+            let bundle = try JSONDecoder().decode(FHIRBundle.self, from: data)
+            print("\n📊 Decoded Bundle:")
+            print("  - Resource Type: \(bundle.resourceType)")
+            print("  - Type: \(bundle.type)")
+            print("  - Total Entries: \(bundle.entry?.count ?? 0)")
+            
+            let results = bundle.entry?.compactMap { entry -> (id: String, effectiveDateTime: String)? in
+                print("\n🔍 Processing Entry:")
+                print("  - Full URL: \(entry.fullUrl ?? "nil")")
+                print("  - Search Mode: \(entry.search?.mode ?? "nil")")
+                
+                guard let observation = entry.resource as? FHIRObservation else {
+                    print("  ❌ Failed to cast resource to FHIRObservation")
+                    return nil
+                }
+                
+                print("  ✅ Successfully decoded observation:")
+                print("    - ID: \(observation.id ?? "nil")")
+                print("    - Status: \(observation.status ?? "nil")")
+                print("    - Effective Date: \(observation.effectiveDateTime)")
+                
+                return (id: observation.id ?? "", effectiveDateTime: observation.effectiveDateTime)
+            } ?? []
+            
+            print("\n📋 Final Results:")
+            print("  - Total valid observations: \(results.count)")
+            for (index, result) in results.enumerated() {
+                print("    \(index + 1). ID: \(result.id), Date: \(result.effectiveDateTime)")
+            }
+            
+            return results
+        } catch {
+            print("\n❌ Failed to decode FHIR response:")
+            print("  Error: \(error)")
+            if let decodingError = error as? DecodingError {
+                switch decodingError {
+                case .keyNotFound(let key, let context):
+                    print("  Missing key: \(key.stringValue)")
+                    print("  Context: \(context.debugDescription)")
+                case .typeMismatch(let type, let context):
+                    print("  Type mismatch: expected \(type)")
+                    print("  Context: \(context.debugDescription)")
+                case .valueNotFound(let type, let context):
+                    print("  Value not found: expected \(type)")
+                    print("  Context: \(context.debugDescription)")
+                case .dataCorrupted(let context):
+                    print("  Data corrupted: \(context.debugDescription)")
+                @unknown default:
+                    print("  Unknown decoding error")
+                }
+            }
+            throw error
+        }
+    }
 }
 
 // MARK: - FHIR Models
@@ -268,9 +398,10 @@ enum FHIRError: Error { case uploadFailed }
 
 struct FHIRObservation: Codable {
     let resourceType = "Observation"
-    let status: String
-    let code: FHIRCodeableConcept
-    let subject: FHIRReference
+    let id: String?
+    let status: String?
+    let code: FHIRCodeableConcept?
+    let subject: FHIRReference?
     let effectiveDateTime: String
     var valueQuantity: FHIRQuantity?
     var valueString: String?
@@ -300,25 +431,27 @@ struct FHIRCoding: Codable { let system: String; let code: String; let display: 
 struct FHIRQuantity: Codable { let value: Double; let unit, system, code: String }
 struct FHIRReference: Codable { let reference: String }
 
-struct FHIRBundle: Encodable {
-    let resourceType = "Bundle"
+struct FHIRBundle: Codable {
+    let resourceType: String
     let type: String
-    let entry: [FHIRBundleEntry]
+    let entry: [FHIRBundleEntry]?
 }
-struct FHIRBundleEntry: Encodable {
-    let request: FHIRBundleRequest
-    let resource: Encodable
 
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(request, forKey: .request)
-        try resource.encode(to: container.superEncoder(forKey: .resource))
-    }
+struct FHIRBundleEntry: Codable {
+    let request: FHIRBundleRequest?
+    let resource: FHIRObservation
+    let fullUrl: String?
+    let search: FHIRBundleSearch?
 
     enum CodingKeys: String, CodingKey {
-        case request, resource
+        case request, resource, fullUrl, search
     }
 }
+
+struct FHIRBundleSearch: Codable {
+    let mode: String
+}
+
 struct FHIRBundleRequest: Codable {
     let method: String
     let url: String
@@ -332,3 +465,4 @@ extension Date {
         return fmt.string(from: self)
     }
 }
+

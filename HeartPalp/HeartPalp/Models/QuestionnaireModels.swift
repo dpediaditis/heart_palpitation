@@ -73,6 +73,8 @@ struct QuestionnaireResponse {
     let status: String = "completed"
     let authored: String
     let item: [ResponseItem]
+    let subject: FHIRReference
+    var partOf: [FHIRReference]?
     
     struct ResponseItem {
         let linkId: String
@@ -93,8 +95,13 @@ struct QuestionnaireResponse {
         var dict: [String: Any] = [
             "resourceType": resourceType,
             "status": status,
-            "authored": authored
+            "authored": authored,
+            "subject": ["reference": subject.reference]
         ]
+        
+        if let partOf = partOf {
+            dict["partOf"] = partOf.map { ["reference": $0.reference] }
+        }
         
         dict["item"] = item.map { $0.toDictionary() }
         return dict

@@ -16,6 +16,7 @@ struct CalendarLogView: View {
     @State private var selectedDays = 7
     @State private var showingShareSheet = false
     @State private var shareableLink: String = ""
+    @State private var shareURL: URL? = nil
     
     @HealthKitQuery(.heartRate, timeRange: .currentYear) private var hrAll
     @HealthKitQuery(.restingHeartRate, timeRange: .currentYear) private var restingAll
@@ -98,19 +99,43 @@ struct CalendarLogView: View {
                     })
                 }
             }
-            .sheet(isPresented: $showingShareSheet) {
-                if let url = URL(string: shareableLink) {
+            .sheet(isPresented: $showingShareSheet, onDismiss: {
+                // Reset the URL when the sheet is dismissed
+                shareURL = nil
+            }) {
+                if let url = shareURL {
                     ShareSheet(items: [url])
+                        .ignoresSafeArea()
                 }
             }
         }
     }
     
     private func generateAndShareLink() {
+        print("🔗 Generating shareable link...")
         // Use the FHIR patient ID from your app's configuration
         let patientId = "example-patient-id3" // This should be replaced with your actual patient ID
-        shareableLink = LinkGenerator.generateLink(patientId: patientId, daysValid: selectedDays)
-        showingShareSheet = true
+        let generatedLink = LinkGenerator.generateLink(patientId: patientId, daysValid: selectedDays)
+        print("🔗 Generated link: \(generatedLink)")
+        
+        // Create URL first
+        guard let url = URL(string: generatedLink) else {
+            print("❌ Failed to create URL from generated link")
+            return
+        }
+        
+        // Update state on the main thread
+        DispatchQueue.main.async {
+            self.shareableLink = generatedLink
+            self.shareURL = url
+            print("🔗 Created URL object and updated state")
+            
+            // Only show the sheet if we have a valid URL
+            if self.shareURL != nil {
+                print("🔗 Presenting share sheet")
+                self.showingShareSheet = true
+            }
+        }
     }
 }
 

@@ -3,6 +3,7 @@ import SwiftUI
 struct HeartEpisodeMeasurementView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingECGMeasurement = false
+    @State private var shouldIncludePartOf = false
     @Binding var isPresented: Bool
     
     var body: some View {
@@ -53,7 +54,7 @@ struct HeartEpisodeMeasurementView: View {
         }
         .fullScreenCover(isPresented: $showingECGMeasurement) {
             NavigationView {
-                ECGMeasurementView(isPresented: $isPresented)
+                ECGMeasurementView(shouldIncludePartOf: $shouldIncludePartOf, isPresented: $isPresented)
             }
         }
     }

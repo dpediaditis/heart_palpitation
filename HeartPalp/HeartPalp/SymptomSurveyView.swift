@@ -4,6 +4,13 @@ struct SymptomSurveyView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
     @StateObject private var fhirService = FHIRDataService()
+    @Binding var shouldIncludePartOf: Bool
+    
+    init(isPresented: Binding<Bool>, shouldIncludePartOf: Binding<Bool>) {
+        self._isPresented = isPresented
+        self._shouldIncludePartOf = shouldIncludePartOf
+        print("📱 SymptomSurveyView: Initialized with shouldIncludePartOf = \(shouldIncludePartOf.wrappedValue)")
+    }
     
     var questionnaire: Questionnaire? {
         do {
@@ -52,7 +59,8 @@ struct SymptomSurveyView: View {
                 onCancel: {
                     print("ℹ️ Questionnaire cancelled")
                     isPresented = false
-                }
+                },
+                shouldIncludePartOf: $shouldIncludePartOf
             )
         } else {
             VStack(spacing: 20) {

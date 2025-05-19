@@ -6,6 +6,7 @@ struct ECGMeasurementView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingECGGuide = false
     @State private var showingSymptomSurvey = false
+    @Binding var shouldIncludePartOf: Bool
     @Binding var isPresented: Bool
     
     var body: some View {
@@ -40,7 +41,9 @@ struct ECGMeasurementView: View {
             
             VStack(spacing: 16) {
                 Button(action: {
-                    // Show symptom survey
+                    // Show symptom survey with partOf
+                    shouldIncludePartOf = true
+                    print("📱 ECGMeasurementView: Setting shouldIncludePartOf to true")
                     showingSymptomSurvey = true
                 }) {
                     Text("Continue to Symptom Survey")
@@ -53,7 +56,9 @@ struct ECGMeasurementView: View {
                 }
                 
                 Button(action: {
-                    // Show symptom survey
+                    // Show symptom survey without partOf
+                    shouldIncludePartOf = false
+                    print("📱 ECGMeasurementView: Setting shouldIncludePartOf to false")
                     showingSymptomSurvey = true
                 }) {
                     Text("Skip")
@@ -85,7 +90,7 @@ struct ECGMeasurementView: View {
         }
         .fullScreenCover(isPresented: $showingSymptomSurvey) {
             NavigationView {
-                SymptomSurveyView(isPresented: $isPresented)
+                SymptomSurveyView(isPresented: $isPresented, shouldIncludePartOf: $shouldIncludePartOf)
             }
         }
     }
