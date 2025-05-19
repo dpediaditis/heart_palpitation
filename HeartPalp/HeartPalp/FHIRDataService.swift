@@ -29,16 +29,32 @@ class FHIRDataService: ObservableObject {
 
     /// Create a basic Patient resource (once)
     func createPatient() async throws {
+        let firstName = UserDefaults.standard.string(forKey: "patientFirstName") ?? "Unknown"
+        let lastName = UserDefaults.standard.string(forKey: "patientLastName") ?? "Unknown"
+        let gender = UserDefaults.standard.string(forKey: "patientGender") ?? "unknown"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let birthDate = UserDefaults.standard.object(forKey: "patientDateOfBirth") as? Date ?? Date()
+        let birthDateString = dateFormatter.string(from: birthDate)
+        
         let patient: [String: Any] = [
             "resourceType": "Patient",
             "id": AppConfig.patientId,
             "name": [[
-                "given": ["Phone"],
-                "family": "Anton"
+                "given": [firstName],
+                "family": lastName
             ]],
-            "gender" : "male",
-            "birthDate" : "1999-06-23"
+            "gender": gender.lowercased(),
+            "birthDate": birthDateString
         ]
+        
+        print("👤 Creating FHIR Patient resource:")
+        print("  - ID: \(AppConfig.patientId)")
+        print("  - Name: \(firstName) \(lastName)")
+        print("  - Gender: \(gender)")
+        print("  - Birth Date: \(birthDateString)")
+        
         let url = URL(string: "\(baseURL)/\(AppConfig.patientReference)")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"

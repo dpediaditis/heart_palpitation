@@ -43,6 +43,22 @@ struct BasicInfoView: View {
             HStack {
                 Spacer()
                 Button("Continue") {
+                    // Generate and save patient ID
+                    let patientId = patientModel.generatePatientId()
+                    AppConfig.patientId = patientId
+                    
+                    // Save patient information
+                    UserDefaults.standard.set(patientModel.firstName, forKey: "patientFirstName")
+                    UserDefaults.standard.set(patientModel.lastName, forKey: "patientLastName")
+                    UserDefaults.standard.set(patientModel.dateOfBirth, forKey: "patientDateOfBirth")
+                    UserDefaults.standard.set(patientModel.gender.rawValue, forKey: "patientGender")
+                    
+                    print("✅ Saved patient information:")
+                    print("  - First Name: \(patientModel.firstName)")
+                    print("  - Last Name: \(patientModel.lastName)")
+                    print("  - Date of Birth: \(patientModel.dateOfBirth)")
+                    print("  - Gender: \(patientModel.gender.rawValue)")
+                    
                     onComplete()
                 }
                 .buttonStyle(.borderedProminent)
@@ -55,5 +71,5 @@ struct BasicInfoView: View {
 
 #Preview {
     BasicInfoView(onComplete: {})
-        //.environmentObject(PatientModel())
+        .environmentObject(PatientModel())
 }

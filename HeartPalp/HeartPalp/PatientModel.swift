@@ -105,4 +105,21 @@ class PatientModel: ObservableObject {
             return saved
         }
         return []
-    }}
+    }
+    
+    func generatePatientId() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        let birthDateString = dateFormatter.string(from: dateOfBirth)
+        
+        // Create a readable ID with the format: symptom-saga-id-firstname-lastname-birthdate
+        let id = "symptom-saga-id-\(firstName.lowercased())-\(lastName.lowercased())-\(birthDateString)"
+        
+        print("🔑 Generated Patient ID: \(id)")
+        print("  - First Name: \(firstName)")
+        print("  - Last Name: \(lastName)")
+        print("  - Birth Date: \(birthDateString)")
+        
+        return id
+    }
+}
