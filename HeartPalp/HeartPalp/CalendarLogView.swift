@@ -113,8 +113,8 @@ struct CalendarLogView: View {
     
     private func generateAndShareLink() {
         print("🔗 Generating shareable link...")
-        // Use the FHIR patient ID from your app's configuration
-        let patientId = "example-patient-id3" // This should be replaced with your actual patient ID
+        // Use the FHIR patient ID from app configuration
+        let patientId = AppConfig.patientId
         let generatedLink = LinkGenerator.generateLink(patientId: patientId, daysValid: selectedDays)
         print("🔗 Generated link: \(generatedLink)")
         

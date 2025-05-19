@@ -153,7 +153,7 @@ struct CustomQuestionnaireView: View {
         var response = QuestionnaireResponse(
             authored: ISO8601DateFormatter().string(from: Date()),
             item: responseItems,
-            subject: FHIRReference(reference: "Patient/example-patient-id-anton1")
+            subject: FHIRReference(reference: AppConfig.patientReference)
         )
         
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
