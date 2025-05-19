@@ -75,7 +75,8 @@ struct VitalCard: View {
                         color: color,
                         samples: samples ?? []
                     )
-                } else {
+                }
+                else {
                     // fallback: simple view with its own dismiss
                     NavigationView {
                         VStack(spacing: 16) {

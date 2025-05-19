@@ -480,7 +480,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HeartPalp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_CFBundleDisplayName = SymptomSaga;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "We use health records to visualize the vitals";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\n";
@@ -518,7 +518,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HeartPalp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_CFBundleDisplayName = SymptomSaga;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "We use health records to visualize the vitals";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\nWe need to read your heart rate and sleep data so we can display your daily health metrics.\n\n";

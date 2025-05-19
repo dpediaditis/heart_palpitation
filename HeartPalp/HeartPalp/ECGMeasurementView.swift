@@ -61,7 +61,7 @@ struct ECGMeasurementView: View {
                     print("📱 ECGMeasurementView: Setting shouldIncludePartOf to false")
                     showingSymptomSurvey = true
                 }) {
-                    Text("Skip")
+                    Text("Continue without ECG measurement")
                         .font(.headline)
                         .foregroundColor(.blue)
                         .frame(maxWidth: .infinity)

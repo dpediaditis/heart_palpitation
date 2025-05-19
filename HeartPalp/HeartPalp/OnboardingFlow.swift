@@ -6,6 +6,7 @@ struct OnboardingFlow: View {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var step = 0
     @State private var showError = false
+    @StateObject private var patientModel = PatientModel()
 
     var body: some View {
         switch step {
@@ -50,9 +51,22 @@ struct OnboardingFlow: View {
             SignatureOnboarding { step += 1 }
 
         case 3:
-            ConsentOnboarding {
-                hasOnboarded = true   // ✅ this ends onboarding and flips the flag
-            }
+            ConsentOnboarding { step += 1 }
+        case 4:
+            BasicInfoView(onComplete: { step += 1 })
+                .environmentObject(PatientModel())
+        case 5:
+            ExistingDiseasesView(onComplete: { step += 1 })
+                .environmentObject(PatientModel())
+        case 6:
+            MedicationsView(onComplete: { step += 1 })
+                .environmentObject(PatientModel())
+        case 7:
+            NicotineUseView(onComplete: { step += 1 })
+                .environmentObject(PatientModel())
+        case 8:
+            PregnancyView(onComplete: { hasOnboarded = true })
+                .environmentObject(PatientModel())
 
         default:
             // Not needed anymore unless debugging
@@ -60,3 +74,4 @@ struct OnboardingFlow: View {
         }
     }
 }
+

@@ -42,6 +42,8 @@ actor HealthDataStandard: Standard, HealthKitConstraint {
                     glucoseSamples:  [],
                     ecgSamples:      ecgSamples
                 )
+                fhirService.lastSyncDate = Date()
+                print("📊 HealthDataStandard - Updated lastSyncDate after ECG sync")
                 print("✅ Pushed ECG samples (\(ecgSamples.count)) to FHIR")
             } catch {
                 print("❌ Failed pushing ECG: \(error)")
@@ -100,6 +102,8 @@ actor HealthDataStandard: Standard, HealthKitConstraint {
                 glucoseSamples:  glucoseSamples,
                 ecgSamples:      []
             )
+            fhirService.lastSyncDate = Date()
+            print("📊 HealthDataStandard - Updated lastSyncDate after quantity sync")
             print("✅ Pushed quantity samples counts -> HR:\(hrSamples.count), Resting:\(restingSamples.count), Oxygen:\(oxygenSamples.count), Steps:\(stepSamples.count), Energy:\(energySamples.count), Exercise:\(exerciseSamples.count), Stand:\(standSamples.count), Glucose:\(glucoseSamples.count)")
         } catch {
             print("❌ Failed pushing quantity samples: \(error)")

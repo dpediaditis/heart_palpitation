@@ -49,6 +49,12 @@ struct SymptomSurveyView: View {
                         do {
                             try await fhirService.uploadQuestionnaireResponse(response.toDictionary())
                             print("✅ Successfully sent questionnaire response to FHIR server")
+                            // Save the response locally for dashboard
+                            if let jsonData = try? JSONSerialization.data(withJSONObject: response.toDictionary(), options: []),
+                               let jsonString = String(data: jsonData, encoding: .utf8) {
+                                UserDefaults.standard.set(jsonString, forKey: "latestSymptomSurveyResponse")
+                                print("💾 Saved latest symptom survey response to UserDefaults")
+                            }
                         } catch {
                             print("❌ Failed to send questionnaire response to FHIR server: \(error)")
                         }

@@ -234,177 +234,44 @@
         {
           "valueCoding": {
             "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
-            "code": "less-than-1-min",
+            "code": "just-a-few-seconds",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Less than 1 min"
+            "display": "Just a few seconds"
           }
         },
         {
           "valueCoding": {
             "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
-            "code": "1-5-min",
+            "code": "less-than-5-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "1-5 min"
+            "display": "Less than 5 minutes"
           }
         },
         {
           "valueCoding": {
             "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
-            "code": "5-15-min",
+            "code": "5-15-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "5-15 min"
+            "display": "5-15 minutes"
           }
         },
         {
           "valueCoding": {
             "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
-            "code": "about-30-min",
+            "code": "15-30-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "About 30 min"
+            "display": "15-30 minutes"
           }
         },
         {
           "valueCoding": {
-            "id": "b32c8ebc-a47e-488b-95ac-7a776e98cfb4",
-            "code": "about-1-hour",
+            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d2",
+            "code": "more-than-30-minutes",
             "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "About 1 hour"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "1d561500-a34d-4b4a-8c2a-4ca03f5651e6",
-            "code": "more-than-1-hour",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "More than 1 hour"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "edafce46-4592-4ef7-d0dc-465c78689ef0",
-            "code": "recurring-episodes-(keeps-coming-and-going)",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Recurring episodes (keeps coming and going)"
-          }
-        }
-      ]
-    },
-    {
-      "linkId": "be709241-46b4-436a-c062-d46b10ed65e8",
-      "type": "choice",
-      "text": "What were you doing that time?",
-      "required": false,
-      "answerOption": [
-        {
-          "valueCoding": {
-            "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
-            "code": "sitting",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Sitting"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
-            "code": "standing",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Standing"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
-            "code": "walking",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Walking"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
-            "code": "exercising",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Exercising"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "bc1c58a4-40a6-4ecd-8188-be3efb9d8e10",
-            "code": "sleeping",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Sleeping"
-          }
-        }
-      ]
-    },
-    {
-      "linkId": "b16984c1-c20a-40e6-8107-ebd16e0417d2",
-      "type": "open-choice",
-      "text": "What could have possibly triggered it?",
-      "required": false,
-      "answerOption": [
-        {
-          "valueCoding": {
-            "id": "d2844e0a-c5e6-4802-8a11-5a6249b47c4c",
-            "code": "drinking-caffeine-/-nicotine-based-drinks",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Drinking caffeine / nicotine based drinks"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "ab4f2743-3f8e-4c3c-f3f3-a662eba519d0",
-            "code": "poor-sleep",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Poor sleep"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "2de0938b-d714-4476-81fd-4937cf7aadb5",
-            "code": "stress",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Stress"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "5c07bd5b-ddce-48bf-f825-c62a5a0f66d1",
-            "code": "after-meal",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "After meal"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "bc1c58a4-40a6-4ecd-8188-be3efb9d8e10",
-            "code": "sudden-onset",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Sudden onset"
-          }
-        },
-        {
-          "valueCoding": {
-            "id": "f7b21033-8414-4fb5-8a6f-26dd0a8ae421",
-            "code": "sudden-stop",
-            "system": "urn:uuid:eca1f5c6-8813-43e5-d79d-947d834fff9d",
-            "display": "Sudden stop"
-          }
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
-                "code": "check-box"
-              }
-            ]
+            "display": "More than 30 minutes"
           }
         }
       ]
     }
   ]
-}
+} 

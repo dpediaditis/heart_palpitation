@@ -7,20 +7,29 @@ import PencilKit
 struct WelcomeOnboarding: View {
     let action: () -> Void
     var body: some View {
-        OnboardingView(
-            title: "Welcome to HeartPalp",
-            subtitle: "Your health at a glance",
-            areas: [
-                .init(icon: Image(systemName: "heart.fill"),
-                      title: "Track Heart Rate",
-                      description: "Real‑time BPM from Apple Watch."),
-                .init(icon: Image(systemName: "bed.double.fill"),
-                      title: "Monitor Sleep",
-                      description: "Analyze sleep duration & quality.")
-            ],
-            actionText: "Next",
-            action: action
-        )
+        Image("SymptomSaga_Logo_Transp")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 160, height: 160)
+            .accessibilityLabel("SymptomSaga Logo")
+            .padding(.top, 50)
+        VStack(spacing: 34) {
+            OnboardingView(
+                title: "Welcome to SymptomSaga",
+                subtitle: "Turning data into story, and story into care",
+                areas: [
+                    .init(icon: Image(systemName: "heart.fill"),
+                          title: "Track Heart Episodes",
+                          description: "ECG & Heart Rate data from Apple Watch."),
+                    .init(icon: Image(systemName: "heart.text.square"),
+                          title: "Log Episode Symptoms",
+                          description: "Track Episode Subjective Symptoms.")
+                ],
+                actionText: "Next",
+                action: action
+            )
+            
+        }
     }
 }
 
@@ -96,7 +105,7 @@ struct ConsentOnboarding: View {
                 Text("Data Sharing Consent")
                     .font(.title2).bold()
                 Text("""
-By tapping “I Consent,” you agree to share your health data with your clinician. All data will be transmitted securely over HTTPS.
+By tapping "I Consent," you agree to share your health data. All data will be transmitted securely over HTTPS. The data can only be viewed using your custom generated link.
 """)
             }
             .padding()
@@ -106,6 +115,7 @@ By tapping “I Consent,” you agree to share your health data with your clini
             .padding()
     }
 }
+
 
 #if DEBUG
 struct OnboardingViews_Previews: PreviewProvider {

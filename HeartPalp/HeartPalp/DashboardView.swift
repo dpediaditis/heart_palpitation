@@ -122,6 +122,47 @@ struct DashboardView: View {
          GridItem(.flexible(), spacing: 16)
      ]
 
+    // MARK: – Symptom Survey
+    struct SymptomSurveySummary {
+        let authored: String
+        let answers: [String]
+        let questions: [String]
+    }
+
+    var symptomSurvey: [SymptomSurveySummary] {
+        guard let jsonString = UserDefaults.standard.string(forKey: "latestSymptomSurveyResponse"),
+              let jsonData = jsonString.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let authored = json["authored"] as? String,
+              let items = json["item"] as? [[String: Any]] else {
+            return []
+        }
+        var answers: [String] = []
+        var questions: [String] = []
+        for item in items {
+            if let text = item["text"] as? String {
+                questions.append("\(text)")
+                if let answerArr = item["answer"] as? [[String: Any]], let answer = answerArr.first {
+                    if let value = answer["valueString"] as? String {
+                        answers.append("\(value)")
+                    } else if let value = answer["valueInteger"] {
+                        answers.append("\(value)")
+                    } else if let value = answer["valueBoolean"] {
+                        answers.append("\(value)")
+                    } else if let value = answer["valueCoding"] as? [String: Any], let display = value["display"] as? String {
+                        answers.append("\(display)")
+                    }
+                } else {
+                    answers.append(text)
+                }
+            }
+        }
+        return [SymptomSurveySummary(authored: authored, answers: answers, questions: questions)]
+    }
+
+    // Add a state variable to control the presentation of the detail view
+    @State private var showingSymptomSurveyDetail = false
+
     // MARK: – Body
     var body: some View {
         NavigationView {
@@ -171,20 +212,28 @@ struct DashboardView: View {
                         )
                         
                         VitalCard(
-                            title: "Oxygen Saturation",
-                            value: latestO2,
-                            icon: "lungs.fill",
-                            color: .teal,
-                            samples: Array(oxygen)
-                        )
-                        
-                        VitalCard(
                             title: "Glucose",
                             value: latestGlucose,
                             icon: "drop.fill",
                             color: .purple,
                             samples: Array(glucoseSamples)
                         )
+                        
+                        VitalCard(
+                            title: "Oxygen Saturation",
+                            value: latestO2,
+                            icon: "lungs.fill",
+                            color: .green,
+                            samples: Array(oxygen)
+                        )
+                        
+                        SymptomSurveyCard(summary: symptomSurvey.first)
+                            .onTapGesture {
+                                showingSymptomSurveyDetail = true
+                            }
+                            .sheet(isPresented: $showingSymptomSurveyDetail) {
+                                SymptomSurveyDetailViewNew(summary: symptomSurvey.first)
+                            }
                         
                     }
                     .padding(.horizontal)
@@ -241,7 +290,7 @@ struct DashboardView: View {
                     Divider()
                 }
                 .padding(.vertical)
-                .navigationTitle("Health Dashboard")
+                .navigationTitle("Dashboard")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
@@ -263,12 +312,13 @@ struct DashboardView: View {
                         }
                     }
                 }
-                .onAppear {
+                .onAppear() {
                     Task {
                         do {
                             let lastSync = fhirService.lastSyncDate ?? Date.distantPast
+                            print("📊 Dashboard sync check - Last sync: \(lastSync)")
                             
-                            // Filter samples to only include those after last sync
+                            // Filter samples to only include those after lastSync
                             let newHRSamples = Array(hrAllSamples.filter { $0.startDate > lastSync })
                             let newRestingSamples = Array(allRestingHR.filter { $0.startDate > lastSync })
                             let newOxygenSamples = Array(allOxygen.filter { $0.startDate > lastSync })
@@ -278,6 +328,9 @@ struct DashboardView: View {
                             let newStandSamples = Array(allStand.filter { $0.startDate > lastSync })
                             let newGlucoseSamples = Array(allGlucoseSamples.filter { $0.startDate > lastSync })
                             let newECGSamples = Array(ecgSamples.filter { $0.startDate > lastSync })
+                            
+                            // Log the number of new samples found
+                            print("📊 New samples found - HR: \(newHRSamples.count), Resting: \(newRestingSamples.count), Oxygen: \(newOxygenSamples.count), Steps: \(newStepSamples.count), Energy: \(newEnergySamples.count), Exercise: \(newExerciseSamples.count), Stand: \(newStandSamples.count), Glucose: \(newGlucoseSamples.count), ECG: \(newECGSamples.count)")
                             
                             // Only sync if we have new data
                             if !newHRSamples.isEmpty || !newRestingSamples.isEmpty || !newOxygenSamples.isEmpty ||
@@ -294,9 +347,11 @@ struct DashboardView: View {
                                     glucoseSamples: newGlucoseSamples,
                                     ecgSamples: newECGSamples
                                 )
+                                fhirService.lastSyncDate = Date()
+                                print("📊 Dashboard - Updated lastSyncDate after sync")
                                 print("✅ Synced new data since last sync")
                             } else {
-                                print("ℹ️ No new data to sync")
+                                print("ℹ️ No new data to sync since last sync at \(lastSync)")
                             }
                         } catch {
                             print("❌ Sync failed: \(error)")

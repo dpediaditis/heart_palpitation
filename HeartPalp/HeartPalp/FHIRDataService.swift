@@ -5,13 +5,16 @@ import SwiftUI
 /// A service to handle FHIR-formatted data export and API communication using FHIR Bundles
 class FHIRDataService: ObservableObject {
     @Published var isUploading = false
-    @Published var lastSyncDate: Date? {
-        didSet {
-            if let date = lastSyncDate {
-                UserDefaults.standard.set(date, forKey: "lastSyncDate")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "lastSyncDate")
+    var lastSyncDate: Date? {
+        get {
+            if let timestamp = UserDefaults.standard.object(forKey: "lastSyncDate") as? Date {
+                return timestamp
             }
+            return nil
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "lastSyncDate")
+            print("💾 Updated lastSyncDate to: \(newValue?.description ?? "nil")")
         }
     }
 
@@ -22,8 +25,6 @@ class FHIRDataService: ObservableObject {
     init(baseURL: String = "https://gw.interop.community/hp2025stan/open") {
         self.baseURL = baseURL
         self.session = URLSession.shared
-        // Load last sync date from UserDefaults
-        self.lastSyncDate = UserDefaults.standard.object(forKey: "lastSyncDate") as? Date
     }
 
     /// Create a basic Patient resource (once)
@@ -122,7 +123,7 @@ class FHIRDataService: ObservableObject {
     ) async throws {
         try await createPatient()
         let patientRef = FHIRReference(reference: AppConfig.patientReference)
-
+        
         // Build Observation resources
         var entries: [FHIRBundleEntry] = []
 
@@ -253,12 +254,61 @@ class FHIRDataService: ObservableObject {
                 subject: patientRef,
                 effectiveDateTime: startDate.iso8601String()
             )
-            ecgObs.component = [FHIRObservationComponent(
+            
+            // Add components array
+            var components: [FHIRObservationComponent] = [
+                FHIRObservationComponent(
+                    code: FHIRCodeableConcept(coding: [
+                        FHIRCoding(system: "http://loinc.org", code: "51985-6", display: "ECG lead I voltage")
+                    ]),
+                    valueSampledData: sampled
+                )
+            ]
+            
+            // Add classification
+            let classificationString: String
+            switch ecg.classification {
+            case .notSet:
+                classificationString = "Not Set"
+            case .sinusRhythm:
+                classificationString = "Sinus Rhythm"
+            case .atrialFibrillation:
+                classificationString = "Atrial Fibrillation"
+            case .inconclusiveHighHeartRate:
+                classificationString = "Inconclusive - High Heart Rate"
+            case .inconclusiveLowHeartRate:
+                classificationString = "Inconclusive - Low Heart Rate"
+            case .inconclusivePoorReading:
+                classificationString = "Inconclusive - Poor Reading"
+            case .inconclusiveOther:
+                classificationString = "Inconclusive - Other"
+            @unknown default:
+                classificationString = "Unknown"
+            }
+            
+            components.append(FHIRObservationComponent(
                 code: FHIRCodeableConcept(coding: [
-                    FHIRCoding(system: "http://loinc.org", code: "51985-6", display: "ECG lead I voltage")
+                    FHIRCoding(system: "http://loinc.org", code: "8889-8", display: "ECG classification")
                 ]),
-                valueSampledData: sampled
-            )]
+                valueString: classificationString
+            ))
+            
+            // Add average heart rate if available
+            if let avgHR = ecg.averageHeartRate {
+                components.append(FHIRObservationComponent(
+                    code: FHIRCodeableConcept(coding: [
+                        FHIRCoding(system: "http://loinc.org", code: "8867-4", display: "Average heart rate")
+                    ]),
+                    valueQuantity: FHIRQuantity(
+                        value: avgHR.doubleValue(for: .count().unitDivided(by: .minute())),
+                        unit: "beats/minute",
+                        system: "http://unitsofmeasure.org",
+                        code: "/min"
+                    )
+                ))
+            }
+            
+            ecgObs.component = components
 
             entries.append(
                 FHIRBundleEntry(
