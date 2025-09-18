@@ -61,6 +61,8 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 
 <p align="center"><i>Main app screen showing ECG recording and vitals from Apple Health.</i></p>
 
+---
+
 ### Heart Palpitation
 <p align="center">
   <img src="docs/images/HeartPalpitation.svg" alt="Image 1">
@@ -72,6 +74,8 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 </p>
 
 <p align="center"><i>Patient flow to start recording a palpitation episode.</i></p>
+
+---
 
 ### Logs
 
