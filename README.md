@@ -56,8 +56,28 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 <p align="center">
   <img src="docs/images/Dashboard.svg" alt="Image 1">
   <img src="docs/images/Dashboard2.svg" alt="Image 2">
-  <img src="docs/images/Dashboard3.svg" alt="Image 3">
+  <img src="docs/images/Dasboard3.svg" alt="Image 3">
 </p>
 
-*Main app screen showing ECG recording and vitals from Apple Health.* 
+<p align="center"><i>Main app screen showing ECG recording and vitals from Apple Health.</i></p>
 
+### Heart Palpitation
+<p align="center">
+  <img src="docs/images/HeartPalpitation.svg" alt="Image 1">
+  <img src="docs/images/HeartPalpitation2.svg" alt="Image 2">
+  <img src="docs/images/HeartPalpitation3.svg" alt="Image 3">
+  <img src="docs/images/HeartPalpitation4.svg" alt="Image 4">
+  <img src="docs/images/HeartPalpitation5.svg" alt="Image 5">
+  <img src="docs/images/HeartPalpitation6.svg" alt="Image 6">
+</p>
+
+<p align="center"><i>Patient flow to start recording a palpitation episode.</i></p>
+
+### Logs
+
+<p align="center">
+  <img src="docs/images/Log.svg" alt="Image 1">
+  <img src="docs/images/Log2.svg" alt="Image 2">
+</p>
+
+<p align="center"><i>Log view.</i></p>
