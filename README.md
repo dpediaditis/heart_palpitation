@@ -51,6 +51,16 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 
 ---
 
+## Data Flow
+
+1. Patient initiates measurement in the app.
+2. App retrieves ECG and vitals (heart rate, HRV, etc.) from HealthKit.
+3. Patient logs symptoms (severity, activity, duration).
+4. Data is bundled into FHIR resources and sent to the backend.
+5. Patient can generate a secure link to a structured web report.
+
+---
+
 ## Screenshots
 ### Dashboard
 <p align="center">
@@ -85,3 +95,10 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 </p>
 
 <p align="center"><i>Log view.</i></p>
+
+---
+
+### Disclaimer
+
+This app is a prototype and not a certified medical device.
+It is intended for research and educational purposes only and should not be used for clinical decision-making.
