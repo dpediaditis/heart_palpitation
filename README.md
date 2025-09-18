@@ -54,9 +54,9 @@ This project was developed as part of the course [TRA460: Digital Health Impleme
 ## Screenshots
 ### Dashboard
 <p align="center">
-  <img src="docs/images/Dashboard.png" alt="Image 1" width="200"/>
-  <img src="docs/images/Dashboard2.png" alt="Image 2" width="200"/>
-  <img src="path/to/HeartDetails.png" alt="Image 3" width="200"/>
+  <img src="docs/images/Dashboard.png" alt="Image 1">
+  <img src="docs/images/Dashboard2.png" alt="Image 2">
+  <img src="path/to/HeartDetails.png" alt="Image 3">
 </p>
 
 *Main app screen showing ECG recording and vitals from Apple Health.* 
